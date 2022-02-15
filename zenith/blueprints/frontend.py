@@ -246,3 +246,10 @@ async def register_post():
     # user has successfully registered
     log(f"User <{username} ({user_id})> has successfully registered through website.", Ansi.GREEN)
     return await render_template('verify.html')
+
+@frontend.route('/leaderboard')
+@frontend.route('/lb')
+@frontend.route('/leaderboard/<mode>/<sort>/<mods>')
+@frontend.route('/lb/<mode>/<sort>/<mods>')
+async def leaderboard(mode='std', sort='pp', mods='vn'):
+    return await render_template('leaderboard.html', mode=mode, sort=sort, mods=mods)
