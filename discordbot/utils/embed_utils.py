@@ -1,12 +1,12 @@
-from sqlalchemy import delete
 import discord
 from discord.ext import commands
-import app.state.discordbot as dbot
+
 import discordbot.botconfig as configb
 from discordbot.utils.constants import colors
 
-prefix = configb.PREFIX
+import app.state.discordbot as dbot
 
+prefix = configb.PREFIX
 embed_list = {
     "permission_view_restrict": {
         "title": "Error",
@@ -148,7 +148,7 @@ async def emb_gen(embed_name):
     embed = discord.Embed(title=emb['title'], description=emb['description'], color=emb['color'])
     if emb['footer'] == "default":
         embed.set_footer(text=DEFAULT_FOOTER)
-    
+
     if emb["delete_after"]:
         delete_after = emb["delete_after"]
         return (embed, delete_after)

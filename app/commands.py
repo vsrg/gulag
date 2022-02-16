@@ -36,6 +36,7 @@ from peace_performance_python.objects import Calculator as PeaceCalculator
 import app.packets
 import app.state
 import app.utils
+from discordbot.utils.constants import colors
 import settings
 from app.constants import regexes
 from app.constants.gamemodes import GameMode
@@ -63,6 +64,10 @@ try:
     from oppai_ng.oppai import OppaiWrapper
 except ModuleNotFoundError:
     pass  # utils will handle this for us
+
+from cmyui import discord
+from discordbot.utils.embeds import restrict_log
+import additional_config as addconf
 
 if TYPE_CHECKING:
     from app.objects.channel import Channel
@@ -957,6 +962,10 @@ async def restrict(ctx: Context) -> Optional[str]:
         reason = SHORTHAND_REASONS[reason]
 
     await t.restrict(admin=ctx.player, reason=reason)
+
+    webhook = discord.Webhook(addconf.HALL_OF_SHAME)
+    webhook.add_embed(embed=await restrict_log(ctx.player, t, reason))
+    await webhook.post(app.state.services.http)
 
     return f"{t} was restricted."
 

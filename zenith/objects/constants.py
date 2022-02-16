@@ -17,7 +17,7 @@ mode_gulag_rev = {
     4: 0,
     5: 1,
     6: 2,
-    7: 0
+    8: 0
 }
 
 mode2str = {
@@ -28,5 +28,5 @@ mode2str = {
     4: "std_rx",
     5: "taiko_rx",
     6: "catch_rx",
-    7: "std_ap",
+    8: "std_ap",
 }

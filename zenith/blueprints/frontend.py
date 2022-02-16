@@ -13,6 +13,7 @@ from app.constants.privileges import Privileges
 from app.objects.player import Player
 from app.state import website as zglob
 from cmyui.logging import Ansi, log
+from pathlib import Path
 from quart import (Blueprint, redirect, render_template, request, send_file,
                    session)
 from zenith import zconfig
@@ -253,3 +254,39 @@ async def register_post():
 @frontend.route('/lb/<mode>/<sort>/<mods>')
 async def leaderboard(mode='std', sort='pp', mods='vn'):
     return await render_template('leaderboard.html', mode=mode, sort=sort, mods=mods)
+
+@frontend.route('/u')
+@frontend.route('/u/<u>')
+@frontend.route('/u/<u>/<mode>')
+async def profile(u:str=None, mode:int=0):
+    if u == None:
+        return await utils.flash_tohome('error', 'You must specify username or id')
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+
+    return await render_template('profile.html')
+
+
+# profile customisation
+BANNERS_PATH = Path.cwd() / 'zenith/.data/banners'
+BACKGROUND_PATH = Path.cwd() / 'zenith/.data/backgrounds'
+@frontend.route('/banners/<user_id>')
+async def get_profile_banner(user_id: int):
+    # Check if avatar exists
+    for ext in ('jpg', 'jpeg', 'png', 'gif'):
+        path = BANNERS_PATH / f'{user_id}.{ext}'
+        if path.exists():
+            return await send_file(path)
+
+    return b'{"status":404}'
+
+
+@frontend.route('/backgrounds/<user_id>')
+async def get_profile_background(user_id: int):
+    # Check if avatar exists
+    for ext in ('jpg', 'jpeg', 'png', 'gif'):
+        path = BACKGROUND_PATH / f'{user_id}.{ext}'
+        if path.exists():
+            return await send_file(path)
+
+    return b'{"status":404}'
