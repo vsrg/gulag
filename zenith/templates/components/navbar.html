@@ -80,7 +80,9 @@
                 <!-- Dropdown toggle button -->
                 <button @click="open = true" class="flex items-center rounded-md px-3 py-2 pd-3.5 h-auto font-medium text-white hover:text-gray-300">
                     <div class="flex flex-row items-center justify-items-center">
-                        <img src="https://a.seventwentyseven.xyz/{{ session['user_data']['id'] }}" class="h-8 w-8 mr-3 rounded-full">
+                        <img src="https://a.seventwentyseven.xyz/{{ session['user_data']['id'] }}"
+                             class="h-8 w-8 mr-3 rounded-full"
+                             alt="/static/images/avatar_notwork.png">
                         <span class="font-medium mr-1">{{ session['user_data']['name'] }}</span><i class="fas fa-chevron-down"></i>
                     </div>
                 </button>

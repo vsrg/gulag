@@ -31,7 +31,7 @@ MODE_CONVERT = {
     4: "osu!Standard+RX",
     5: "osu!Taiko+RX",
     6: "osu!Catch+RX",
-    7: "osu!Standard+AP",
+    8: "osu!Standard+AP",
 }
 
 @api.route('/')
@@ -42,13 +42,16 @@ async def main():
 async def get_records():
     #TODO: Make it faster
     records = {}
-    for i in range(0, 8):
+    for i in range(0, 9):
+        if i == 7:
+            continue
         record = await app.state.services.database.fetch_one(
-            f'SELECT {tables[i]}.id, {tables[i]}.pp, {tables[i]}.userid, '
-            f'maps.set_id, users.name FROM {tables[i]} LEFT JOIN users ON '
-            f'{tables[i]}.userid = users.id LEFT JOIN maps ON {tables[i]}.map_md5 = '
-            f'maps.md5 WHERE {tables[i]}.mode = {mode_gulag_rev[i]} && maps.status=2 '
-             '&& users.priv & 1 ORDER BY pp DESC LIMIT 1;'
+            f'SELECT s.id, s.pp, s.userid, m.set_id, u.name '
+            f'FROM scores s '
+            f'LEFT JOIN users u ON s.userid '
+            f'LEFT JOIN maps m ON s.map_md5 = m.md5 '
+            f'WHERE s.mode = {i} && m.status=2 && u.priv & 1 '
+             'ORDER BY pp DESC LIMIT 1;'
         )
         record = dict(record)
         record['id'] = str(record['id'])
