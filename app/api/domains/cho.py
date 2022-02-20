@@ -67,12 +67,11 @@ IPAddress = Union[ipaddress.IPv4Address, ipaddress.IPv6Address]
 BEATMAPS_PATH = Path.cwd() / ".data/osu"
 
 BASE_DOMAIN = settings.DOMAIN
-_domain_escaped = BASE_DOMAIN.replace(".", r"\.")
 
 # TODO: dear god
 NOW_PLAYING_RGX = re.compile(
     r"^\x01ACTION is (?:playing|editing|watching|listening to) "
-    rf"\[https://osu\.(?:{_domain_escaped}|ppy\.sh)/beatmapsets/(?P<sid>\d{{1,10}})#/?(?:osu|taiko|fruits|mania)?/(?P<bid>\d{{1,10}})/? .+\]"
+    rf"\[https://osu\.(?:{re.escape(BASE_DOMAIN)}|ppy\.sh)/beatmapsets/(?P<sid>\d{{1,10}})#/?(?:osu|taiko|fruits|mania)?/(?P<bid>\d{{1,10}})/? .+\]"
     r"(?: <(?P<mode_vn>Taiko|CatchTheBeat|osu!mania)>)?"
     r"(?P<mods>(?: (?:-|\+|~|\|)\w+(?:~|\|)?)+)?\x01$",
 )
@@ -761,7 +760,7 @@ async def login(
         icon_url=settings.MENU_ICON_URL,
         onclick_url=settings.MENU_ONCLICK_URL,
     )
-    data += app.packets.friends_list(*p.friends)
+    data += app.packets.friends_list(p.friends)
     data += app.packets.silence_end(p.remaining_silence)
 
     # update our new player's stats, and broadcast them.
@@ -2025,7 +2024,10 @@ class UserPresenceRequestAll(BasePacket):
 
         p.enqueue(
             b"".join(
-                map(app.packets.user_presence, app.state.sessions.players.unrestricted),
+                map(
+                    app.packets.user_presence,
+                    app.state.sessions.players.unrestricted,
+                ),
             ),
         )
 
