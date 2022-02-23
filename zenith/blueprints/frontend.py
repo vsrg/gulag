@@ -35,6 +35,8 @@ async def test():
 
 @frontend.route('/login', methods=['GET'])
 async def login():
+    if 'authenticated' in session:
+        return await utils.flash_tohome('error', "You're already logged in!")
     return await render_template('login.html')
 
 @frontend.route('/login', methods=['POST'])
@@ -264,7 +266,7 @@ async def profile(u:str=None, mode:int=0):
     if 'authenticated' in session:
         await utils.updateSession(session)
 
-    return await render_template('profile.html')
+    return await render_template('profile/home.html')
 
 
 # profile customisation
