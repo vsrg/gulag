@@ -35,6 +35,7 @@ from peace_performance_python.objects import Calculator as PeaceCalculator
 
 import app.packets
 import app.state
+from app.state import services
 import app.utils
 from discordbot.utils.constants import colors
 import settings
@@ -1518,7 +1519,38 @@ async def server(ctx: Context) -> Optional[str]:
         ],
     )
 
+@command(Privileges.DEVELOPER)
+async def redisrecalc(ctx):
+    await app.state.services.redis.delete("*")
+    for i in range (0,9):
+        if i == 7:
+            continue
+        res = await app.state.services.database.fetch_all(
+            "SELECT u.id, u.priv, u.country, s.pp "
+            "FROM users u "
+            "LEFT JOIN stats s ON u.id=s.id "
+            "WHERE s.mode=:mode ",
+            {"mode": i}
+        )
+        for el in res:
+            el = dict(el)
+            if Privileges.NORMAL not in Privileges(el['priv']):
+                pass
+            else:
+                try:
+                    await app.state.services.redis.zadd(
+                        f"gulag:leaderboard:{i}",
+                        {el['id']:el['pp']},
+                    )
 
+                    # country rank
+                    await app.state.services.redis.zadd(
+                        f"gulag:leaderboard:{i}:{el['country']}",
+                        {el['id']: el['pp']},
+                    )
+                except Exception:
+                    print(f"Error occured on {el['id']} in mode {i}")
+    return "Done"
 if settings.DEVELOPER_MODE:
     """Advanced (& potentially dangerous) commands"""
 
