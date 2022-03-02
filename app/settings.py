@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 
 from databases import DatabaseURL
@@ -87,4 +89,4 @@ DEVELOPER_MODE: bool = config("DEVELOPER_MODE", cast=bool, default=False)
 ## WARNING: only touch this if you know how
 ##          the migrations system works.
 ##          you'll regret it.
-VERSION = "4.2.1"
+VERSION = "4.2.2"

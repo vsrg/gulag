@@ -257,9 +257,11 @@ async def register_post():
 async def leaderboard(mode='std', sort='pp', mods='vn'):
     return await render_template('leaderboard.html', mode=mode, sort=sort, mods=mods)
 
-@frontend.route('/u')
 @frontend.route('/u/<u>')
+@frontend.route('/u/<u>/home')
+@frontend.route('/u')
 @frontend.route('/u/<u>/<mode>')
+@frontend.route('/u/<u>/<mode>/home')
 async def profile(u:str=None, mode:int=0):
     if u == None:
         return await utils.flash_tohome('error', 'You must specify username or id')

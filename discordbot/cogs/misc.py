@@ -6,7 +6,6 @@ import app.state.discordbot as dbot
 import cmyui
 import discord
 import discordbot.botconfig as configb
-import settings
 from app.constants.privileges import Privileges
 from app.objects.player import Player
 from discord.ext import commands
@@ -18,7 +17,7 @@ session = aiohttp.ClientSession()
 class misc(commands.Cog):
     def __init__(self, client):
         self.client = client
-    
+
     @cog_ext.cog_slash(name="status", description="Check server status")
     async def _profile(self, ctx: SlashContext):
         #* Pings

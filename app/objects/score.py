@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 import math
 from datetime import datetime
@@ -48,7 +50,7 @@ class Grade(IntEnum):
 
     @classmethod
     @functools.cache
-    def from_str(cls, s: str) -> "Grade":
+    def from_str(cls, s: str) -> Grade:
         return {
             "xh": Grade.XH,
             "x": Grade.X,
@@ -150,7 +152,7 @@ class Score:
         # TODO: check whether the reamining Optional's should be
         self.id: Optional[int] = None
         self.bmap: Optional[Beatmap] = None
-        self.player: Optional["Player"] = None
+        self.player: Optional[Player] = None
 
         self.mode: GameMode
         self.mods: Mods
@@ -188,7 +190,7 @@ class Score:
     def __repr__(self) -> str:  # maybe shouldn't be so long?
         return (
             f"<{self.acc:.2f}% {self.max_combo}x {self.nmiss}M "
-            f"#{self.rank} on {self.bmap.full} for {self.pp:,.2f}pp>"
+            f"#{self.rank} on {self.bmap.full_name} for {self.pp:,.2f}pp>"
         )
 
     """Classmethods to fetch a score object from various data types."""

@@ -4,6 +4,17 @@
 {% endblock %}
 
 {% block content %}
+<!-- User Stats -->
+<div class="w-full bg-hsl-20 rounded-lg flex flex-col" style="min-height: 64px;">
+    <!-- Header -->
+    <div class="text-xl font-medium pl-5 py-2 bg-hsl-25 rounded-t-lg">
+        <i class="fas fa-address-card mr-2 w-auto"></i>Stats
+    </div>
+    <!-- Content -->
+    <div class="m-3 h-72">
+
+    </div>
+</div>
 <!-- About Me -->
 <div class="w-full bg-hsl-20 rounded-lg flex flex-col" style="min-height: 64px;">
     <!-- Header -->
@@ -11,8 +22,287 @@
         <i class="fas fa-address-card mr-2 w-auto"></i>About Me
     </div>
     <!-- Content -->
-    <div class="m-3">
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Aliquid, ea vero sint obcaecati vel aliquam recusandae labore nemo officiis ipsam tempora molestiae suscipit ad eum odio. Eius laudantium voluptatibus ipsum.
+    <div class="m-3 max-h-80 overflow-y-scroll">
+        Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+        Aliquid, ea vero sint obcaecati vel aliquam recusandae labore
+        nemo officiis ipsam tempora molestiae suscipit ad eum odio.
+        Eius laudantium voluptatibus ipsum.
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+</div>
+
+<!-- Top Plays -->
+<div class="w-full bg-hsl-20 rounded-lg flex flex-col my-3" style="min-height: 64px;">
+    <!-- Header -->
+    <div class="text-xl font-medium pl-5 py-2 bg-hsl-25 rounded-t-lg">
+        <i class="fas fa-trophy mr-2 w-auto"></i>Top Plays
+    </div>
+    <!-- Content -->
+    <div class="m-3 overflow-x-scroll md:overflow-x-hidden">
+        <div class="w-max md:w-full h-20 flex">
+            <div class="w-auto sm:w-full h-full rounded-lg flex"
+                 style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.65),
+                 hsl(var(--main), 10%, 10%, 0.65)), url(https://assets.ppy.sh/beatmaps/400078/covers/cover.jpg);
+                 background-position: center; background-size: cover">
+                <div class="w-auto md:w-full h-full grid grid-cols-12 grid-rows-1">
+                    <!-- Map info -->
+                    <div class="col-span-10 row-span-1 flex flex-col justify-center ml-2">
+                        <p class="font-medium">
+                            <a  class="w-full text-hsl-80 hover:text-hsl-90 transform duration-200"
+                                href="/b/400078">
+                                <span class="text-ellipsis overflow-hidden">Kurokotei - Galaxy Collapse [Cataclysmic Hypernova]</span>
+                            </a>
+                            <span class="ml-1">+DT</span>
+                        </p>
+                        <div>
+                            <span>832,955 / 1366x</span>
+                            <span class="ml-2 md:ml-3">7 hours 27 minutes ago</span>
+
+                        </div>
+                    </div>
+                    <!-- Score Info -->
+                    <div class="col-span-2 row-span-2 grid grid-cols-3 grid-rows-1 gap-x-1 mr-3">
+                        <div class="col-span-2 row-span-1 flex flex-col items-end justify-center mr-1">
+                            <span class="text-xl text-hsl-80 font-bold whitespace-nowrap">740pp</span>
+                            <span class="text-hsl-90 whitespace-nowrap">Acc 95.67%</span>
+                        </div>
+                        <div class="col-span-1 row-span-1 flex items-center justify-center">
+                            <span class="text-3xl font-bold text-yellow-400">SS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-items-center">
+                <span class="ml-4 mr-3">
+                    <i class="fas fa-ellipsis-v text-lg"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent -->
+<div class="w-full bg-hsl-20 rounded-lg flex flex-col my-3" style="min-height: 64px;">
+    <!-- Header -->
+    <div class="text-xl font-medium pl-5 py-2 bg-hsl-25 rounded-t-lg">
+        <i class="fas fa-history mr-2 w-auto"></i>Recent Plays
+    </div>
+    <!-- Content -->
+    <div class="m-3 overflow-x-scroll md:overflow-x-hidden">
+        <div class="w-max md:w-full h-20 flex">
+            <div class="w-auto sm:w-full h-full rounded-lg flex"
+                 style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.65),
+                 hsl(var(--main), 10%, 10%, 0.65)), url(https://assets.ppy.sh/beatmaps/400078/covers/cover.jpg);
+                 background-position: center; background-size: cover">
+                <div class="w-auto md:w-full h-full grid grid-cols-12 grid-rows-1">
+                    <!-- Map info -->
+                    <div class="col-span-10 row-span-1 flex flex-col justify-center ml-2">
+                        <p class="font-medium">
+                            <a  class="w-full text-hsl-80 hover:text-hsl-90 transform duration-200"
+                                href="/b/400078">
+                                <span class="text-ellipsis overflow-hidden">Kurokotei - Galaxy Collapse [Cataclysmic Hypernova]</span>
+                            </a>
+                            <span class="ml-1">+DT</span>
+                        </p>
+                        <div>
+                            <span>832,955 / 1366x</span>
+                            <span class="ml-2 md:ml-3">7 hours 27 minutes ago</span>
+
+                        </div>
+                    </div>
+                    <!-- Score Info -->
+                    <div class="col-span-2 row-span-2 grid grid-cols-3 grid-rows-1 gap-x-1 mr-3">
+                        <div class="col-span-2 row-span-1 flex flex-col items-end justify-center mr-1">
+                            <span class="text-xl text-hsl-80 font-bold whitespace-nowrap">740pp</span>
+                            <span class="text-hsl-90 whitespace-nowrap">Acc 95.67%</span>
+                        </div>
+                        <div class="col-span-1 row-span-1 flex items-center justify-center">
+                            <span class="text-3xl font-bold text-yellow-400">SS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center justify-items-center">
+                <span class="ml-4 mr-3">
+                    <i class="fas fa-ellipsis-v text-lg"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Most Played-->
+<div class="w-full bg-hsl-20 rounded-lg flex flex-col" style="min-height: 64px;">
+    <!-- Header -->
+    <div class="text-xl font-medium pl-5 py-2 bg-hsl-25 rounded-t-lg">
+        <i class="fas fa-play mr-2 w-auto"></i>Most Played
+    </div>
+    <!-- Content -->
+    <div class="m-3 grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <a  class="col-span-1 row-span-1 h-20 rounded-lg bg-hsl-30 flex
+                   hover:bg-hsl-40 hover:opacity-60 transform duration-500"
+            style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.55),
+            hsl(var(--main), 10%, 10%, 0.55)), url(https://assets.ppy.sh/beatmaps/842412/covers/cover.jpg);
+            background-position: center; background-size: cover"
+            href="/b/2137">
+            <div class="grid grid-cols-6 grid-rows-1 gap-1 h-full w-full">
+                <div class="row-span-1 col-span-4 md:col-span-5 h-full flex justify-center ml-2 flex-col">
+                    <p class="font-medium truncate">Will Stetson - Harumachi Clover (Swing Arrangement) [Dictate Edit]</p>
+                    <p class="mt-1 truncate">Oh no!</p>
+                </div>
+                <div class="row-span-1 col-span-2 md:col-span-1 flex items-end justify-end h-full">
+                    <p class="font-medium text-sm md:text-base mr-2 mb-1 whitespace-nowrap">
+                        Played <span class="text-hsl-80 text-base md:text-lg">32x</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        <a  class="col-span-1 row-span-1 h-20 rounded-lg bg-hsl-30 flex
+                   hover:bg-hsl-40 hover:opacity-60 transform duration-500"
+            style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.55),
+            hsl(var(--main), 10%, 10%, 0.55)), url(https://assets.ppy.sh/beatmaps/842412/covers/cover.jpg);
+            background-position: center; background-size: cover"
+            href="/b/2137">
+            <div class="grid grid-cols-6 grid-rows-1 gap-1 h-full w-full">
+                <div class="row-span-1 col-span-4 md:col-span-5 h-full flex justify-center ml-2 flex-col">
+                    <p class="font-medium truncate">Will Stetson - Harumachi Clover (Swing Arrangement) [Dictate Edit]</p>
+                    <p class="mt-1 truncate">Oh no!</p>
+                </div>
+                <div class="row-span-1 col-span-2 md:col-span-1 flex items-end justify-end h-full">
+                    <p class="font-medium text-sm md:text-base mr-2 mb-1 whitespace-nowrap">
+                        Played <span class="text-hsl-80 text-base md:text-lg">32x</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        <a  class="col-span-1 row-span-1 h-20 rounded-lg bg-hsl-30 flex
+                   hover:bg-hsl-40 hover:opacity-60 transform duration-500"
+            style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.55),
+            hsl(var(--main), 10%, 10%, 0.55)), url(https://assets.ppy.sh/beatmaps/842412/covers/cover.jpg);
+            background-position: center; background-size: cover"
+            href="/b/2137">
+            <div class="grid grid-cols-6 grid-rows-1 gap-1 h-full w-full">
+                <div class="row-span-1 col-span-4 md:col-span-5 h-full flex justify-center ml-2 flex-col">
+                    <p class="font-medium truncate">Will Stetson - Harumachi Clover (Swing Arrangement) [Dictate Edit]</p>
+                    <p class="mt-1 truncate">Oh no!</p>
+                </div>
+                <div class="row-span-1 col-span-2 md:col-span-1 flex items-end justify-end h-full">
+                    <p class="font-medium text-sm md:text-base mr-2 mb-1 whitespace-nowrap">
+                        Played <span class="text-hsl-80 text-base md:text-lg">32x</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        <a  class="col-span-1 row-span-1 h-20 rounded-lg bg-hsl-30 flex
+                   hover:bg-hsl-40 hover:opacity-60 transform duration-500"
+            style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.55),
+            hsl(var(--main), 10%, 10%, 0.55)), url(https://assets.ppy.sh/beatmaps/842412/covers/cover.jpg);
+            background-position: center; background-size: cover"
+            href="/b/2137">
+            <div class="grid grid-cols-6 grid-rows-1 gap-1 h-full w-full">
+                <div class="row-span-1 col-span-4 md:col-span-5 h-full flex justify-center ml-2 flex-col">
+                    <p class="font-medium truncate">Will Stetson - Harumachi Clover (Swing Arrangement) [Dictate Edit]</p>
+                    <p class="mt-1 truncate">Oh no!</p>
+                </div>
+                <div class="row-span-1 col-span-2 md:col-span-1 flex items-end justify-end h-full">
+                    <p class="font-medium text-sm md:text-base mr-2 mb-1 whitespace-nowrap">
+                        Played <span class="text-hsl-80 text-base md:text-lg">32x</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        <a  class="col-span-1 row-span-1 h-20 rounded-lg bg-hsl-30 flex
+                   hover:bg-hsl-40 hover:opacity-60 transform duration-500"
+            style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.55),
+            hsl(var(--main), 10%, 10%, 0.55)), url(https://assets.ppy.sh/beatmaps/842412/covers/cover.jpg);
+            background-position: center; background-size: cover"
+            href="/b/2137">
+            <div class="grid grid-cols-6 grid-rows-1 gap-1 h-full w-full">
+                <div class="row-span-1 col-span-4 md:col-span-5 h-full flex justify-center ml-2 flex-col">
+                    <p class="font-medium truncate">Will Stetson - Harumachi Clover (Swing Arrangement) [Dictate Edit]</p>
+                    <p class="mt-1 truncate">Oh no!</p>
+                </div>
+                <div class="row-span-1 col-span-2 md:col-span-1 flex items-end justify-end h-full">
+                    <p class="font-medium text-sm md:text-base mr-2 mb-1 whitespace-nowrap">
+                        Played <span class="text-hsl-80 text-base md:text-lg">32x</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        <a  class="col-span-1 row-span-1 h-20 rounded-lg bg-hsl-30 flex
+                   hover:bg-hsl-40 hover:opacity-60 transform duration-500"
+            style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.55),
+            hsl(var(--main), 10%, 10%, 0.55)), url(https://assets.ppy.sh/beatmaps/842412/covers/cover.jpg);
+            background-position: center; background-size: cover"
+            href="/b/2137">
+            <div class="grid grid-cols-6 grid-rows-1 gap-1 h-full w-full">
+                <div class="row-span-1 col-span-4 md:col-span-5 h-full flex justify-center ml-2 flex-col">
+                    <p class="font-medium truncate">Will Stetson - Harumachi Clover (Swing Arrangement) [Dictate Edit]</p>
+                    <p class="mt-1 truncate">Oh no!</p>
+                </div>
+                <div class="row-span-1 col-span-2 md:col-span-1 flex items-end justify-end h-full">
+                    <p class="font-medium text-sm md:text-base mr-2 mb-1 whitespace-nowrap">
+                        Played <span class="text-hsl-80 text-base md:text-lg">32x</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        <a  class="col-span-1 row-span-1 h-20 rounded-lg bg-hsl-30 flex
+                   hover:bg-hsl-40 hover:opacity-60 transform duration-500"
+            style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.55),
+            hsl(var(--main), 10%, 10%, 0.55)), url(https://assets.ppy.sh/beatmaps/842412/covers/cover.jpg);
+            background-position: center; background-size: cover"
+            href="/b/2137">
+            <div class="grid grid-cols-6 grid-rows-1 gap-1 h-full w-full">
+                <div class="row-span-1 col-span-4 md:col-span-5 h-full flex justify-center ml-2 flex-col">
+                    <p class="font-medium truncate">Will Stetson - Harumachi Clover (Swing Arrangement) [Dictate Edit]</p>
+                    <p class="mt-1 truncate">Oh no!</p>
+                </div>
+                <div class="row-span-1 col-span-2 md:col-span-1 flex items-end justify-end h-full">
+                    <p class="font-medium text-sm md:text-base mr-2 mb-1 whitespace-nowrap">
+                        Played <span class="text-hsl-80 text-base md:text-lg">32x</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        <a  class="col-span-1 row-span-1 h-20 rounded-lg bg-hsl-30 flex
+                   hover:bg-hsl-40 hover:opacity-60 transform duration-500"
+            style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.55),
+            hsl(var(--main), 10%, 10%, 0.55)), url(https://assets.ppy.sh/beatmaps/842412/covers/cover.jpg);
+            background-position: center; background-size: cover"
+            href="/b/2137">
+            <div class="grid grid-cols-6 grid-rows-1 gap-1 h-full w-full">
+                <div class="row-span-1 col-span-4 md:col-span-5 h-full flex justify-center ml-2 flex-col">
+                    <p class="font-medium truncate">Will Stetson - Harumachi Clover (Swing Arrangement) [Dictate Edit]</p>
+                    <p class="mt-1 truncate">Oh no!</p>
+                </div>
+                <div class="row-span-1 col-span-2 md:col-span-1 flex items-end justify-end h-full">
+                    <p class="font-medium text-sm md:text-base mr-2 mb-1 whitespace-nowrap">
+                        Played <span class="text-hsl-80 text-base md:text-lg">32x</span>
+                    </p>
+                </div>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}

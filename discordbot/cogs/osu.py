@@ -11,7 +11,6 @@ import app.state
 import cmyui
 import discord
 import discordbot.botconfig as configb
-import settings
 from app.constants.mods import SPEED_CHANGING_MODS
 from app.constants.privileges import Privileges
 from app.objects.player import Player
@@ -119,9 +118,9 @@ class osu(commands.Cog):
                 inline=False
             )
         return await ctx.send(embed=embed)
-        
+
     #! dzifors code pls dont hit me
-    
+
     @cog_ext.cog_slash(name="scores", description="Shows scores of player", options=sopt.scores)
     async def _scores(self, ctx: SlashContext, user:str=None, type:str=None, mode:str=None, mods:str="ignore", limit:str=None):
         if user == None:
@@ -133,22 +132,22 @@ class osu(commands.Cog):
         if 'error' in user:
             cmyui.log(f"DISCORD BOT: {ctx.author} tried using /scores but got an error: {user['error']}", Ansi.RED)
             return await ctx.send(embed = await embutils.emb_gen(user['error']))
-        
+
         if not type:
             type = "best"
-        
+
         #TODO: i dont like this part but i dont got no idea on how to make it more clean without all this mess
 
         user = user['user']
         name = user['name']
         uid = user['id']
-        
+
         # I totally did NOT copy this from the api, but anyways; this is the part where we set gamemode and mods
         if mode is None:
             mode = GameMode(user['preferred_mode'])
         else:
             mode = GameMode(int(mode))
-        
+
         if mods is not None:
             if mods[0] in ("~", "="):  # weak/strong equality
                 strong_equality = mods[0] == "="
@@ -162,7 +161,7 @@ class osu(commands.Cog):
             else:
                 # parse from string form
                 mods = Mods.from_modstr(mods)
-        
+
         player = await app.state.sessions.players.from_cache_or_sql(id = uid)
 
         #? build sql query & fetch info
@@ -199,7 +198,7 @@ class osu(commands.Cog):
             sort = "t.play_time"
 
         query.append(f"ORDER BY {sort} DESC LIMIT :limit")
-        try: 
+        try:
             if limit is not None:
                 if int(limit) > 100 or int(limit) < 1:
                     return await ctx.send(embed=await embutils.emb_gen("scores_over_limit"))
@@ -213,7 +212,7 @@ class osu(commands.Cog):
         rows = [
             dict(row)
             for row in await app.state.services.database.fetch_all(" ".join(query), params)
-            
+
         ]
 
         #? fetch & return info from sql
