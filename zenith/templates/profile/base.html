@@ -44,25 +44,26 @@
         min-height: 262px;
         background:
           linear-gradient(
-            hsl(var(--main), 25%, 25%, 20%),
-            hsl(var(--main), 25%, 25%, 60%)),
-            url("/banners/4");
+            hsla(var(--main), 25%, 25%, 0.20),
+            hsla(var(--main), 25%, 25%, 0.60)),
+            url("/banners/{{ user['id'] }}");
         background-size: cover;
       }
       .badge-bg {
           background-color: hsla(var(--main), 10%, 10%, 0.7);
       }
-      /*
+
       body {
         background:
           linear-gradient(
-            hsl(var(--main), 25%, 25%, 20%),
-            hsl(var(--main), 10%, 10%)),
+            hsla(var(--main), 25%, 25%, 0.7),
+            hsla(var(--main), 10%, 10%, 0.7)),
             url("/backgrounds/4") !important;
-        background-size: cover;
+        background-size: contain;
         background-clip: content-box;
+        background-repeat: no-repeat;
       }
-      */
+
 </style>
   {% include 'components/navbar.html' %}
   <div class="flex flex-col">
@@ -77,16 +78,16 @@
                     <div class="flex flex-col md:flex-row items-center md:items-start w-full mx-auto lg:mx-0 absolute -mt-48 md:-mt-20">
                         <!-- Avatar -->
                         <div class="md:ml-10 h-28 w-28 md:h-36 md:w-36 rounded-lg shadow-md bg-cover bg-center"
-                             style="background-image: url(https://a.seventwentyseven.xyz/4);">
+                             style="background-image: url(https://a.seventwentyseven.xyz/{{ user['id'] }});">
                         </div>
                         <!-- User Title -->
                         <div class="flex flex-col items-center md:items-start md:ml-5 mt-3 md:mt-0">
                             <div class="flex items-center">
                                 <div class="h-full flex content-center">
-                                    <img src="/static/images/flags/PL.png" class="h-6 pr-2">
+                                    <img src="/static/images/flags/{{ user['country']|upper }}.png" class="h-6 pr-2">
                                 </div>
                                 <div class="flex items-center">
-                                    <h1 class="text-xl lg:text-2xl font-semibold mr-2">[UTO] def750</h1>
+                                    <h1 class="text-xl lg:text-2xl font-semibold mr-2">{{ user['name'] }}</h1>
                                     <!-- Badges-->
                                     <div class="hidden md:flex items-center">
                                         <div class="text-xs rounded-full py-1 px-2 badge-bg text-red-500 mx-0.5">
@@ -112,30 +113,47 @@
                     </div>
                     <!-- Mode Selects -->
                     <div class="w-full h-18 bg-hsl-20">
-                        <div class="h-full md:ml-48 flex items-center justify-between">
-                            <div class="ml-3">
-                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1">
+                        <div class="h-full md:ml-48 flex items-center justify-center sm:justify-start">
+                            <div class="mx-1 sm:mx-3 flex content-center justify-items-center">
+                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1"
+                                        onclick="location.href=`/u/{{ user['id'] }}/0/{{ cur_page }}`"
+                                        id="btn-mode-0">
                                     <i class="mode-icon osu"></i>
                                 </button>
-                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1">
+                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1"
+                                        onclick="location.href=`/u/{{ user['id'] }}/1/{{ cur_page }}`"
+                                        id="btn-mode-1">
                                     <i class="mode-icon taiko"></i>
                                 </button>
-                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1">
+                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1"
+                                        onclick="location.href=`/u/{{ user['id'] }}/2/{{ cur_page }}`"
+                                        id="btn-mode-2">
                                     <i class="mode-icon catch"></i>
                                 </button>
-                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1">
+                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1"
+                                onclick="location.href=`/u/{{ user['id'] }}/3/{{ cur_page }}`"
+                                        id="btn-mode-3">
                                     <i class="mode-icon mania"></i>
                                 </button>
-                            </div>
-                            <div class="mr-3">
-                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1">
-                                    VN
+                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1"
+                                      onclick="location.href=`/u/{{ user['id'] }}/4/{{ cur_page }}`"
+                                        id="btn-mode-4">
+                                    <i class="mode-icon osu text-pink-500"></i>
                                 </button>
-                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1">
-                                    RX
+                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1"
+                                     onclick="location.href=`/u/{{ user['id'] }}/5/{{ cur_page }}`"
+                                        id="btn-mode-5">
+                                    <i class="mode-icon taiko text-pink-500"></i>
                                 </button>
-                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1">
-                                    AP
+                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1"
+                                        onclick="location.href=`/u/{{ user['id'] }}/6/{{ cur_page }}`"
+                                        id="btn-mode-6">
+                                    <i class="mode-icon catch text-pink-500"></i>
+                                </button>
+                                <button class="h-8 w-8 md:h-10 md:w-10 bg-hsl-15 rounded mx-0.5 md:mx-1"
+                                        onclick="location.href=`/u/{{ user['id'] }}/8/{{ cur_page }}`"
+                                        id="btn-mode-8">
+                                    <i class="mode-icon osu text-blue-500"></i>
                                 </button>
                             </div>
                         </div>
@@ -145,21 +163,21 @@
             <!-- Sidebar + Content -->
             <div class="w-full mt-5 flex flex-col lg:flex-row">
                 <!-- Sidebar -->
-                <div class="bg-hsl-15-10 w-full lg:w-52 rounded-lg flex flex-col max-h-min">
+                <div class="bg-hsl-15-10 w-full lg:w-52 rounded-lg flex flex-col max-h-40">
                     <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20 mt-1.5"
-                       href="/u/">
+                       href="/u/{{ user['id'] }}/{{ mode }}/home">
                         <span><i class="fas fa-user mr-2"></i>Home</span>
                     </a>
                     <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20"
-                       href="/u/">
+                       href="/u/{{ user['id'] }}/{{ mode }}/favorites">
                         <span><i class="fas fa-heart mr-2"></i>Favorite Maps</span>
                     </a>
                     <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20"
-                       href="/u/">
+                       href="/u/{{ user['id'] }}/{{ mode }}/no1s">
                         <span><i class="fas fa-trophy mr-2"></i>First Places</span>
                     </a>
                     <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20 mb-1.5"
-                       href="/u/">
+                       href="/u/{{ user['id'] }}/{{ mode }}/notes">
                         <span><i class="fas fa-sticky-note mr-2"></i>Notes</span>
                     </a>
                 </div>

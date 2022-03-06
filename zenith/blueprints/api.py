@@ -9,6 +9,7 @@ import os
 import time
 import datetime
 import app.state.services
+from app.constants.privileges import Privileges
 from pandas import to_datetime
 
 from quart import Blueprint
@@ -21,7 +22,6 @@ from quart import send_file
 from app.objects.player import Player
 from zenith.objects.constants import tables, mode_gulag_rev, mode2str
 from zenith.objects.utils import *
-
 api = Blueprint('api', __name__)
 MODE_CONVERT = {
     0: "osu!Standard",
@@ -119,3 +119,15 @@ async def getLastRegistered():
     del(res)
 
     return {"success": True, "users": res_n}
+
+@api.route('/get_priv_badges', methods=['GET'])
+async def get_priv_badges():
+    id = request.args.get('id', default=None, type=int)
+    if not id:
+        return {"success": False, "msg": "id not specified"}
+    res = await app.state.services.database.fetch_val(
+        "SELECT priv FROM users WHERE id=:uid",
+        {"uid": id}
+    )
+    print(Privileges(res))
+    return {"success":True}

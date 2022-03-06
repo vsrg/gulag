@@ -5,13 +5,16 @@ __all__ = ()
 import datetime
 import hashlib
 import os
+from re import S
 import time
+from markdown import markdown as md
 
-import app.state.services
 import bcrypt
+from sqlalchemy import null
 from app.constants.privileges import Privileges
 from app.objects.player import Player
 from app.state import website as zglob
+import app.state
 from cmyui.logging import Ansi, log
 from pathlib import Path
 from quart import (Blueprint, redirect, render_template, request, send_file,
@@ -19,6 +22,7 @@ from quart import (Blueprint, redirect, render_template, request, send_file,
 from zenith import zconfig
 from zenith.objects import regexes, utils
 from zenith.objects.utils import flash
+from app.constants import gamemodes
 
 frontend = Blueprint('frontend', __name__)
 
@@ -259,16 +263,50 @@ async def leaderboard(mode='std', sort='pp', mods='vn'):
 
 @frontend.route('/u/<u>')
 @frontend.route('/u/<u>/home')
-@frontend.route('/u')
 @frontend.route('/u/<u>/<mode>')
 @frontend.route('/u/<u>/<mode>/home')
-async def profile(u:str=None, mode:int=0):
+async def profile(u:str=None, mode:int=None):
+    #* User not specified
     if u == None:
         return await utils.flash_tohome('error', 'You must specify username or id')
+    #* Update privs
     if 'authenticated' in session:
         await utils.updateSession(session)
 
-    return await render_template('profile/home.html')
+    #* Get user
+    u = await app.state.services.database.fetch_one(
+        "SELECT id, name, priv, country, creation_time, "
+        "preferred_mode, userpage_content, clan_id "
+        "FROM users WHERE id=:u or name=:u",
+        {"u": u}
+    )
+    if not u:
+        return await utils.flash_tohome("error", "User not found") #switch to user specific 404
+    u = dict(u)
+
+    #* Check if mode, not specified. Set to user preferred (default: 0)
+    if not mode:
+        mode = u['preferred_mode']
+    if int(mode) not in [0,1,2,3,4,5,6,8]:
+        return await utils.flash_tohome("error", "Invalid mode") #switch to user specific 404
+
+    #* Get stats
+    s = await app.state.services.database.fetch_one(
+        "SELECT * FROM stats WHERE id=:uid AND mode=:mode",
+        {"uid": u['id'], "mode": mode}
+    )
+    s = dict(s)
+
+    #* Format stuff
+    s['acc'] = round(s['acc'], 2)
+    s['rscore'] = "{:,}".format(s['rscore'])
+    s['tscore'] = "{:,}".format(s['tscore'])
+
+    #Unnecessary checks :trolley:
+    if u['userpage_content'] != None:
+        u['userpage_content'] = md(u['userpage_content'])
+
+    return await render_template('profile/home.html', user=u, mode=mode, stats=s, cur_page="home")
 
 
 # profile customisation
