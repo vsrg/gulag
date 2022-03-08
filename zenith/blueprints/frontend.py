@@ -276,13 +276,22 @@ async def profile(u:str=None, mode:int=None):
     #* Get user
     u = await app.state.services.database.fetch_one(
         "SELECT id, name, priv, country, creation_time, "
-        "preferred_mode, userpage_content, clan_id "
+        "latest_activity, preferred_mode, userpage_content, clan_id "
         "FROM users WHERE id=:u or name=:u",
         {"u": u}
     )
     if not u:
         return await utils.flash_tohome("error", "User not found") #switch to user specific 404
     u = dict(u)
+
+    #! Get author priv and check if target is restricted
+    t_priv = Privileges(int(u['priv']))
+    print(session)
+    is_staff = 'authenticated' in session and session['user_data']['is_staff']
+    if not (u['priv'] & Privileges.NORMAL or is_staff):
+        return (await render_template('404.html'), 404)
+
+    u['customisation'] = utils.has_profile_customizations(u['id'])
 
     #* Check if mode, not specified. Set to user preferred (default: 0)
     if not mode:
@@ -301,6 +310,8 @@ async def profile(u:str=None, mode:int=None):
     s['acc'] = round(s['acc'], 2)
     s['rscore'] = "{:,}".format(s['rscore'])
     s['tscore'] = "{:,}".format(s['tscore'])
+    u['register_dt'] = datetime.datetime.fromtimestamp(float(u['creation_time']))
+    u['latest_activity_dt'] = datetime.datetime.fromtimestamp(float(u['latest_activity']))
 
     #Unnecessary checks :trolley:
     if u['userpage_content'] != None:
@@ -332,3 +343,12 @@ async def get_profile_background(user_id: int):
             return await send_file(path)
 
     return b'{"status":404}'
+
+#Settings
+@frontend.route('/settings')
+async def default_settings_redirect():
+    return redirect('/settings/profile')
+
+@frontend.route('/settings/profile')
+async def settings_profile():
+    return await render_template('/settings/profile.html')

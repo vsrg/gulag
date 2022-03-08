@@ -22,6 +22,8 @@ from quart import send_file
 from app.objects.player import Player
 from zenith.objects.constants import tables, mode_gulag_rev, mode2str
 from zenith.objects.utils import *
+from zenith import zconfig
+
 api = Blueprint('api', __name__)
 MODE_CONVERT = {
     0: "osu!Standard",
@@ -129,5 +131,29 @@ async def get_priv_badges():
         "SELECT priv FROM users WHERE id=:uid",
         {"uid": id}
     )
-    print(Privileges(res))
-    return {"success":True}
+    uprv = Privileges(res)
+    badges = []
+    if id in zconfig.owners:
+        badges.append(("OWNER", "text-red-500"))
+    if Privileges.DEVELOPER in uprv:
+        badges.append(("DEV", "text-purple-500"))
+    if Privileges.ADMINISTRATOR in uprv:
+        badges.append(("ADMIN", "text-yellow-500"))
+    if Privileges.MODERATOR in uprv and Privileges.ADMINISTRATOR not in uprv:
+        badges.append(("GMT", "text-green-500"))
+    if Privileges.NOMINATOR in uprv:
+        badges.append(("BN", "text-blue-500"))
+    if Privileges.ALUMNI in uprv:
+        badges.append(("ALUMNI", "text-red-600"))
+    if Privileges.WHITELISTED in uprv:
+        badges.append(("✔", "text-green-500"))
+    if Privileges.SUPPORTER in uprv:
+        if Privileges.PREMIUM in uprv:
+            badges.append(["❤❤", "text-pink-500"])
+        else:
+            badges.append(["❤", "text-pink-500"])
+    elif Privileges.PREMIUM in uprv:
+        badges.append(["❤❤", "text-pink-500"])
+    if Privileges.NORMAL not in uprv:
+        badges.append(("RESTRICTED", "text-white"))
+    return {"success":True, "badges": badges}

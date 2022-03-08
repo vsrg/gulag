@@ -1,5 +1,6 @@
 import datetime
 from quart import render_template, session
+from app.constants.privileges import Privileges
 import app.state.services
 import zenith.zconfig as zconfig
 from app.state import website as zglob
@@ -68,9 +69,10 @@ async def validate_captcha(data: str) -> bool:
 
         return res['success']
 
-BANNERS_PATH = Path.cwd() / '.data/banners'
-BACKGROUND_PATH = Path.cwd() / '.data/backgrounds'
+BANNERS_PATH = Path.cwd() / 'zenith/.data/banners'
+BACKGROUND_PATH = Path.cwd() / 'zenith/.data/backgrounds'
 def has_profile_customizations(user_id: int = 0) -> dict[str, bool]:
+    print(f"{BANNERS_PATH=} {BACKGROUND_PATH=}")
     # check for custom banner image file
     for ext in ('jpg', 'jpeg', 'png', 'gif'):
         path = BANNERS_PATH / f'{user_id}.{ext}'
@@ -117,6 +119,12 @@ async def updateSession(session, id:int=None):
         'WHERE id = :id', {"id": id}
     )
     user_info = dict(user_info)
+    if (user_info['priv'] & Privileges.MODERATOR or
+        user_info['priv'] & Privileges.ADMINISTRATOR or
+        user_info['priv'] & Privileges.DEVELOPER):
+        is_staff = True
+    else:
+        is_staff = False
     session['authenticated'] = True
     #session['player'] = app.state.sessions.players.from_cache_or_sql(name=user_info['name'])
     session['user_data'] = {
@@ -125,6 +133,7 @@ async def updateSession(session, id:int=None):
         'email': user_info['email'],
         'priv': int(user_info['priv']),
         'silence_end': user_info['silence_end'],
+        'is_staff': is_staff,
     }
 
 def get_safe_name(name: str) -> str:
