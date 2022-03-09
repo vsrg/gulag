@@ -21,7 +21,7 @@ from quart import (Blueprint, redirect, render_template, request, send_file,
                    session)
 from zenith import zconfig
 from zenith.objects import regexes, utils
-from zenith.objects.utils import flash
+from zenith.objects.utils import flash, flash_tohome, validate_password
 from app.constants import gamemodes
 
 frontend = Blueprint('frontend', __name__)
@@ -52,7 +52,6 @@ async def login_post():
     form = await request.form
     username = form.get('username', type=str)
     passwd_txt = form.get('password', type=str)
-    passwd_txt_repeat = form.get('password-confirm', type=str)
 
     if username is None or passwd_txt is None:
         return await utils.flash_tohome('error', 'Invalid parameters.')
@@ -344,11 +343,97 @@ async def get_profile_background(user_id: int):
 
     return b'{"status":404}'
 
-#Settings
+#! Settings
 @frontend.route('/settings')
 async def default_settings_redirect():
     return redirect('/settings/profile')
 
 @frontend.route('/settings/profile')
 async def settings_profile():
+    #* Update privs
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+    else:
+        return await flash_tohome("error", "You must be logged in to enter this page.")
     return await render_template('/settings/profile.html')
+
+@frontend.route('/settings/profile/change_email', methods=['POST', 'GET'])
+async def settings_profile_change_email():
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+    else:
+        return await flash_tohome("error", "You must be logged in to enter this page.")
+
+    # Get code from form
+    form = await request.form
+    new_email = form.get('new_email', type=str)
+    passwd_txt = form.get('new_email-password', type=str)
+
+
+    # Check password
+    if not await validate_password(session['user_data']['id'], passwd_txt):
+        return await flash('error', 'Invalid password, email unchanged.', 'settings/profile')
+
+    # Check email
+    old_email = await app.state.services.database.fetch_val(
+        "SELECT email FROM users WHERE id=:uid",
+        {"uid": session['user_data']['id']}
+    )
+    if new_email == old_email:
+        return await flash('error', 'New email must be diffrent from previous one', 'settings/profile')
+
+    email_used = await app.state.services.database.fetch_val('SELECT 1 FROM users WHERE email=:email', {'email': new_email})
+    if email_used:
+        return await flash('error', 'Email already in use', 'settings/profile')
+    if not regexes.email.match(new_email):
+        return await flash('error', 'Invalid email syntax.', 'settings/profile')
+
+    await app.state.services.database.execute(
+        "UPDATE users SET email=:new_email WHERE id=:uid",
+        {"new_email": new_email, "uid": session['user_data']['id']}
+    )
+    redirect('/settings/profile')
+    return await flash('success', 'Email changed successfully', 'settings/profile')
+
+@frontend.route('/settings/profile/change_password', methods=['POST', 'GET'])
+async def settings_profile_change_password():
+    form = await request.form
+    old_pwd = form.get('old_password', type=str)
+    new_pwd = form.get('new_password', type=str)
+    new_pwd_c = form.get('new_password_confirm', type=str)
+
+    # Validate old password
+    if not await validate_password(session['user_data']['id'], old_pwd):
+        return await flash('error', 'Invalid password, password unchanged.', 'settings/profile')
+
+    if len(new_pwd) < 8 or len(new_pwd) > 50:
+        return await flash('error', 'New password must be longer than 8 characters and shorter than 50 characters.', 'settings/profile')
+    if new_pwd != new_pwd_c:
+        return await flash('error', 'New confirmed password is not the same as new password.', 'settings/profile')
+    if new_pwd == old_pwd:
+        return await flash('error', "New password must be diffrent from old password.", 'settings/profile')
+    if len(set(new_pwd)) <= 3:
+        return await render_template('register.html', message={"password": 'Password must have more than 3 unique characters.'})
+    if new_pwd.lower() in zconfig.disallowed_passwords:
+        return await render_template('register.html', message={"password": 'That password was deemed too simple.'})
+
+    # Update password.
+    pw_md5 = hashlib.md5(new_pwd.encode()).hexdigest().encode()
+    pw_bcrypt = bcrypt.hashpw(pw_md5, bcrypt.gensalt())
+    bcrypt_cache = zglob.cache['bcrypt']
+    bcrypt_cache[pw_bcrypt] = pw_md5 # cache pw
+    await app.state.services.database.execute(
+        "UPDATE users SET pw_bcrypt=:new_pw_hashed",
+        {'new_pw_hashed', pw_bcrypt}
+    )
+
+    # Log user out
+    session.pop('authenticated', None)
+    session.pop('user_data', None)
+
+    return await flash_tohome('success', 'Password changed, please log in again.')
+
+#! Dedicated docs
+@frontend.route('/docs/privacy_policy')
+async def privacy_policy():
+    return await render_template('privacy_policy.html')

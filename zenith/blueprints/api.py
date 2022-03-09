@@ -50,9 +50,10 @@ async def get_records():
         record = await app.state.services.database.fetch_one(
             f'SELECT s.id, s.pp, s.userid, m.set_id, u.name '
             f'FROM scores s '
-            f'LEFT JOIN users u ON s.userid '
+            f'LEFT JOIN users u ON s.userid = u.id '
             f'LEFT JOIN maps m ON s.map_md5 = m.md5 '
-            f'WHERE s.mode = {i} && m.status=2 && u.priv & 1 '
+            f'WHERE s.mode = {i} AND m.status=2 AND u.priv & 1 '
+             'AND grade!="f"'
              'ORDER BY pp DESC LIMIT 1;'
         )
         record = dict(record)

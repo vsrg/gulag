@@ -1,14 +1,17 @@
 import datetime
-from quart import render_template, session
-from app.constants.privileges import Privileges
-import app.state.services
-import zenith.zconfig as zconfig
-from app.state import website as zglob
-import app.state.sessions
-from cmyui.logging import log, Ansi
 from pathlib import Path
-from typing import Optional
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
+import hashlib
+import app.state.services
+import app.state.sessions
+import bcrypt
+import zenith.zconfig as zconfig
+from app.constants.privileges import Privileges
+from app.state import website as zglob
+from cmyui.logging import Ansi, log
+from quart import render_template, session
+
 if TYPE_CHECKING:
     from PIL import Image
 
@@ -158,3 +161,29 @@ async def fetch_geoloc(ip: str) -> str:
                 log(f'Failed to get geoloc data: {lines[0]}.', Ansi.LRED)
             return 'xx'
         return lines[1].lower()
+
+async def validate_password(user_id:int, password_text:str):
+    res = await app.state.services.database.fetch_val(
+        "SELECT pw_bcrypt FROM users WHERE id=:uid",
+        {"uid": user_id}
+    )
+    if not res:
+        raise IndexError("User not found")
+        # cache and other related password information
+
+    bcrypt_cache = zglob.cache['bcrypt']
+    pw_bcrypt = res.encode()
+    pw_md5 = hashlib.md5(password_text.encode()).hexdigest().encode()
+
+    # check credentials (password) against db
+    # intentionally slow, will cache to speed up
+    if pw_bcrypt in bcrypt_cache:
+        if pw_md5 != bcrypt_cache[pw_bcrypt]: # ~0.1ms
+            return False
+    else: # ~200ms
+        if not bcrypt.checkpw(pw_md5, pw_bcrypt):
+            return False
+
+        # login successful; cache password for next login
+        bcrypt_cache[pw_bcrypt] = pw_md5
+    return True

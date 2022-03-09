@@ -43,6 +43,11 @@
 {% include 'components/navbar.html' %}
   <div class="flex flex-col">
     <div class="min-h-screen mt-14">
+      <div class="my-8 mx-auto w-10/12">
+        {% if 'flash' %}
+        {% include 'components/flashes.html' %}
+        {% endif %}
+      </div>
       <!--! Content -->
       <div class="min-h-screen w-full">
         <div class="w-full md:w-11/12 md:mx-auto block my-10 rounded-t-xl max-w-screen-xl">
