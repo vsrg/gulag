@@ -20,7 +20,8 @@
     <link rel="stylesheet" href="/static/css/osuicons.css">
 
     <!--* JS LIBS *-->
-    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpine-collective/alpine-magic-helpers@0.3.x/dist/index.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js"
         integrity="sha512-/DXTXr6nQodMUiq+IUJYCt2PPOUjrHJ9wFrqpJ3XkgPNOZVfMok7cRw6CSxyCQxXn6ozlESsSh1/sMCTF1rL/g=="
         crossorigin="anonymous"></script>
@@ -54,14 +55,14 @@
             <!-- Sidebar + Content -->
             <div class="w-full mt-5 flex flex-col lg:flex-row">
                 <!-- Sidebar -->
-                <div class="bg-hsl-15-10 w-full lg:w-52 rounded-lg flex flex-col max-h-40">
+                <div class="bg-hsl-15-10 w-full lg:w-52 rounded-lg flex flex-col max-h-40 text-sm">
                     <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20 mt-1.5"
                        href="/settings/profile">
                         <span><i class="fas fa-user mr-2"></i>Profile Settings</span>
                     </a>
                     <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20 mb-1.5"
-                       href="/settings/customisation">
-                        <span><i class="fas fa-sticky-note mr-2"></i>Customisation</span>
+                       href="/settings/customization">
+                        <span><i class="far fa-edit mr-2"></i>Customization</span>
                     </a>
                 </div>
                 <div class="w-full mt-3 lg:mt-0 lg:ml-3 bg-hsl-20 rounded-lg">

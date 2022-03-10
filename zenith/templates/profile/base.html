@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="/static/css/osuicons.css">
 
     <!--* JS LIBS *-->
-    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.3.5/dist/alpine.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.min.js"
         integrity="sha512-/DXTXr6nQodMUiq+IUJYCt2PPOUjrHJ9wFrqpJ3XkgPNOZVfMok7cRw6CSxyCQxXn6ozlESsSh1/sMCTF1rL/g=="
         crossorigin="anonymous"></script>
@@ -198,7 +198,7 @@
                     <div class="flex flex-col md:flex-row items-center md:items-start w-full mx-auto lg:mx-0 absolute -mt-48 md:-mt-20">
                         <!-- Avatar -->
                         <div class="md:ml-10 h-28 w-28 md:h-36 md:w-36 rounded-lg shadow-md bg-cover bg-center"
-                             style="background-image: url(https://a.seventwentyseven.xyz/{{ user['id'] }});">
+                             style="background-image: url(https://a.{{ domain() }}/{{ user['id'] }});">
                         </div>
                         <!-- User Title -->
                         <div class="flex flex-col items-center md:items-start md:ml-5 mt-3 md:mt-0">

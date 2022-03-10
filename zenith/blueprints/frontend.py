@@ -8,6 +8,7 @@ import os
 from re import S
 import time
 from markdown import markdown as md
+from PIL import Image
 
 import bcrypt
 from sqlalchemy import null
@@ -32,10 +33,6 @@ async def home():
         await utils.updateSession(session)
 
     return await render_template('home.html', methods=['GET'])
-
-@frontend.route('/test')
-async def test():
-    return await render_template('verify.html')
 
 @frontend.route('/login', methods=['GET'])
 async def login():
@@ -431,7 +428,55 @@ async def settings_profile_change_password():
 
     return await flash_tohome('success', 'Password changed, please log in again.')
 
+@frontend.route('/settings/customization')
+async def settings_customizations():
+    return await render_template('settings/customization.html')
+
+@frontend.route('/settings/customization/avatar', methods=['POST'])
+async def settings_avatar_post():
+    #* Update privs
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+    else:
+        return await flash_tohome("error", "You must be logged in to enter this page.")
+    # constants
+
+    if Privileges.BLOCK_AVATAR in Privileges(int(session['user_data']['id'])):
+        return flash('errors', "You don't have privileges to change your avatar", 'settings/customization')
+    AVATARS_PATH = f'{zconfig.path_to_gulag}.data/avatars'
+    ALLOWED_EXTENSIONS = ['.jpeg', '.jpg', '.png']
+
+    avatar = (await request.files).get('avatar')
+    print(await request.files)
+    # no file uploaded; deny post
+    if avatar is None or not avatar.filename:
+        return await flash('error', 'No image was selected!', 'settings/customization')
+
+    filename, file_extension = os.path.splitext(avatar.filename.lower())
+
+    # bad file extension; deny post
+    if not file_extension in ALLOWED_EXTENSIONS:
+        return await flash('error', 'The image you select must be either a .JPG, .JPEG, or .PNG file!', 'settings/customization')
+
+    # remove old avatars
+    for fx in ALLOWED_EXTENSIONS:
+        if os.path.isfile(f'{AVATARS_PATH}/{session["user_data"]["id"]}{fx}'): # Checking file e
+            os.remove(f'{AVATARS_PATH}/{session["user_data"]["id"]}{fx}')
+
+    # avatar cropping to 1:1
+    pilavatar = Image.open(avatar.stream)
+
+    # avatar change success
+    pilavatar = utils.crop_image(pilavatar)
+    pilavatar.save(os.path.join(AVATARS_PATH, f'{session["user_data"]["id"]}{file_extension.lower()}'))
+    return await flash('success', 'Your avatar has been successfully changed!', 'settings/customization')
+
 #! Dedicated docs
 @frontend.route('/docs/privacy_policy')
 async def privacy_policy():
     return await render_template('privacy_policy.html')
+
+#! Redirects
+@frontend.route('/discord')
+async def redirect_discord():
+    return redirect(zconfig.discord_server)

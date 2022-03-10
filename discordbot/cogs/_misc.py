@@ -19,7 +19,7 @@ class misc(commands.Cog):
         self.client = client
 
     @cog_ext.cog_slash(name="status", description="Check server status")
-    async def _profile(self, ctx: SlashContext):
+    async def _status(self, ctx: SlashContext):
         #* Pings
         st = ""
         async with session.get(f"https://c.seventwentyseven.xyz/") as r:

@@ -36,9 +36,28 @@ class Privileges(IntFlag):
     ADMINISTRATOR = 1 << 13  # able to manage users (level 2).
     DEVELOPER = 1 << 14  # able to manage full server app.state.
 
+    #* Anti Privileges
+    BLOCK_AVATAR = 1 << 24
+    BLOCK_BANNER = 1 << 25
+    BLOCK_BACKGROUND = 1 << 26
+
+    BLOCK_ABOUT_ME = 1 << 27           # Blocks user from changing about me
+    BLOCK_WEBSITE = 1 << 28            # Blocks from changing user's website field on profile
+    BLOCK_LOCATION = 1 << 29           # Same as above but location
+    BLOCK_INTERESTS = 1 << 30          # Same as above but interests
+
+    BLOCK_CLAN_CREATION = 1 << 31      # Blocks clan creation
+    BLOCK_CLAN_AVATAR = 1 << 32        # Blocks changing clan avatar
+    BLOCK_CLAN_BANNER = 1 << 33  # Blocks changing clan banner
+    BLOCK_CLAN_ABOUT = 1 << 34         # Blocks changing clan about us field
+
+    BLOCK_BEATMAP_REQUESTS = 1 << 35
     DONATOR = SUPPORTER | PREMIUM
     STAFF = MODERATOR | ADMINISTRATOR | DEVELOPER
 
+    IMAGES = BLOCK_AVATAR | BLOCK_BANNER | BLOCK_BACKGROUND
+    PROFILE_ABOUT_ME = BLOCK_LOCATION | BLOCK_INTERESTS | BLOCK_ABOUT_ME
+    CLAN = BLOCK_CLAN_CREATION | BLOCK_CLAN_AVATAR | BLOCK_CLAN_BANNER | BLOCK_CLAN_ABOUT
 
 @unique
 @pymysql_encode(escape_enum)
