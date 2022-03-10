@@ -284,8 +284,6 @@ async def profile(u:str=None, mode:int=None):
     u = dict(u)
 
     #! Get author priv and check if target is restricted
-    t_priv = Privileges(int(u['priv']))
-    print(session)
     is_staff = 'authenticated' in session and session['user_data']['is_staff']
     if not (u['priv'] & Privileges.NORMAL or is_staff):
         return (await render_template('404.html'), 404)
