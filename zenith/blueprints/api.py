@@ -182,3 +182,20 @@ async def update_color():
     )
     """
     return {"success": True, "msg": f'Color changed to {color}'}
+
+@api.route('/change_default_mode', methods=['POST'])
+async def changeDefaultMode():
+    if not 'authenticated' in session:
+        return {'success': False, 'msg': 'Login required.'}
+    else:
+        await updateSession(session)
+
+    mode = request.args.get('mode', default=0, type=int)
+    if mode not in [0,1,2,3,4,5,6,8]:
+        return {"success": False, "msg": "Mode must be in range of 0-8 excluding 7."}
+
+    await app.state.services.database.execute(
+        "UPDATE users SET preferred_mode=:mode WHERE id=:uid",
+        {"mode": mode, "uid": session['user_data']['id']}
+    )
+    return {"success": True, "msg": f"Mode successfully changed to {mode}"}

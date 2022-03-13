@@ -129,7 +129,7 @@
     </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-y-2 md:gap-y-3 md:gap-x-3 mx-3 mb-3">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 md:gap-y-0 md:gap-x-3 mx-3 mb-3">
     <div class="col-span-1 row-span-1 rounded-lg bg-hsl-25 h-full">
         <div class="mx-3 flex flex-col">
             <div class="w-full ml-2 mt-3">
@@ -147,17 +147,42 @@
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
-    <!--! Hidden Block -->
-    <div class="col-span-1 row-span-1 rounded-lg bg-hsl-25 h-full hidden"></div>
+    <div class="col-span-1 row-span-1 rounded-lg bg-hsl-25 h-full">
+        <div class="mx-3 flex flex-col">
+            <div class="w-full ml-2 mt-3">
+                <p class="font-medium">Profile Settings - Default mode</p>
+                <div class="h-1 w-10 bg-hsl-60 rounded-full mt-1"></div>
+            </div>
+            <div class="mt-3 mx-2 mb-3">
+                <form>
+                    <div class="relative inline-flex text-hsl-90">
+                        <i class="fas fa-chevron-down text-lg w-2 h-2 absolute top-0 right-0 m-4 pointer-events-none"></i>
+                        <select class="rounded-lg h-10 pl-5 focus:bg-hsl-20 focus:outline-none
+                                pr-10 bg-hsl-15 hover:bg-hsl-20 appearance-none transition duration-300"
+                                onchange="changeDefaultMode(this.value)">
+                            <option value="0">Std</option>
+                            <option value="1">Taiko</option>
+                            <option value="2">Catch</option>
+                            <option value="3">Mania</option>
+                            <option value="4">Std +Relax</option>
+                            <option value="5">Taiko +Relax</option>
+                            <option value="6">Catch +Relax</option>
+                            <option value="8">Std +AutoPilot</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block bottom %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.5/cropper.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.5/cropper.css" />
+<!--* Avatar -->
 <script>
     $("#file")
       .change(function (e) {
@@ -172,6 +197,7 @@
         $('#banner-pv-avatar').attr('src', i.src)
       });
 </script>
+<!--* Banner and BG -->
 <script>
     $("#file-bg")
       .change(function (e) {
@@ -197,6 +223,7 @@
         $('#top-block').css({'background': `linear-gradient(hsl(var(--main), 25%, 25%, 20%), hsl(var(--main), 25%, 25%, 60%)), url(${i.src})`, 'background-size': 'cover'})
       });
 </script>
+<!--* Main color change -->
 <script>
     function changeMainColor() {
         x = document.getElementById("hsl-value").value
@@ -206,8 +233,16 @@
             x = Number(x)
         }
         $('html').css({'--main': x})
-        console.log(x)
         axios.post('/wapi/update_color?color=' + x)
+        .then((r) => {
+            console.log(r.data.success, r.data.msg)
+        })
+    }
+</script>
+<!--* Default Mode -->
+<script>
+    function changeDefaultMode(value) {
+        axios.post('/wapi/change_default_mode?mode=' + value)
         .then((r) => {
             console.log(r.data.success, r.data.msg)
         })
