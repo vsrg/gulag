@@ -540,6 +540,10 @@ async def settings_custom_post():
 async def privacy_policy():
     return await render_template('privacy_policy.html')
 
+@frontend.route('/docs/rules')
+async def rules():
+    return await render_template('rules.html')
+
 #! Redirects
 @frontend.route('/discord')
 async def redirect_discord():
