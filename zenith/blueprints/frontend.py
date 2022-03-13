@@ -98,6 +98,7 @@ async def login_post():
 
     session['authenticated'] = True
     session['user_data'] = {}
+    #session['color'] = await app.state.services.database.fetch_val("SELECT color FROM customs WHERE userid=:id")
     await utils.updateSession(session, int(user_info['id']))
 
     return await utils.flash_tohome('success', f"Welcome back {username}!")
@@ -314,7 +315,7 @@ async def profile(u:str=None, mode:int=None):
     return await render_template('profile/home.html', user=u, mode=mode, stats=s, cur_page="home")
 
 
-# profile customisation
+#! profile customization
 BANNERS_PATH = Path.cwd() / 'zenith/.data/banners'
 BACKGROUND_PATH = Path.cwd() / 'zenith/.data/backgrounds'
 @frontend.route('/banners/<user_id>')
@@ -492,7 +493,7 @@ async def settings_custom_post():
     usr_prv = Privileges(int(session['user_data']['priv']))
     if not session['user_data']['is_staff']:
         return await flash('error', f'This is supporter only feature!', 'settings/customization')
-    elif Privileges.SUPPORTER not in usr_prv or Privileges.PREMIUM not in usr_prv:
+    elif Privileges.SUPPORTER not in usr_prv and Privileges.PREMIUM not in usr_prv:
         return await flash('error', f'This is supporter only feature!', 'settings/customization')
 
     files = await request.files
