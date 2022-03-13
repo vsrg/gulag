@@ -14,3 +14,5 @@ zconfig.py
 /zenith/static/css/style.css
 tools/migrate_v420/go.sum
 tools/migrate_v420/scoreMigrator
+main.go
+additional_config.py

@@ -110,11 +110,11 @@ class Status:
 
 
 # temporary menu-related stuff
-async def bot_hello(p: "Player") -> None:
+async def bot_hello(p: Player) -> None:
     p.send_bot(f"hello {p.name}!")
 
 
-async def notif_hello(p: "Player") -> None:
+async def notif_hello(p: Player) -> None:
     p.enqueue(app.packets.notification(f"hello {p.name}!"))
 
 
@@ -219,7 +219,11 @@ class Player:
     )
 
     def __init__(
-        self, id: int, name: str, priv: Union[int, Privileges], **extras: Any
+        self,
+        id: int,
+        name: str,
+        priv: Union[int, Privileges],
+        **extras: Any,
     ) -> None:
         self.id = id
         self.name = name
@@ -295,7 +299,7 @@ class Player:
 
         # TODO: document
         self.current_menu = MAIN_MENU
-        self.previous_menus = []
+        self.previous_menus: list[Menu] = []
 
         # subject to possible change in the future,
         # although if anything, bot accounts will
@@ -474,6 +478,11 @@ class Player:
         if "bancho_priv" in self.__dict__:
             del self.bancho_priv  # wipe cached_property
 
+        if self.online:
+            # if they're online, send a packet
+            # to update their client-side privileges
+            self.enqueue(app.packets.bancho_privileges(self.bancho_priv))
+
     async def remove_privs(self, bits: Privileges) -> None:
         """Update `self`'s privileges, removing `bits`."""
         self.priv &= ~bits
@@ -486,7 +495,12 @@ class Player:
         if "bancho_priv" in self.__dict__:
             del self.bancho_priv  # wipe cached_property
 
-    async def restrict(self, admin: "Player", reason: str) -> None:
+        if self.online:
+            # if they're online, send a packet
+            # to update their client-side privileges
+            self.enqueue(app.packets.bancho_privileges(self.bancho_priv))
+
+    async def restrict(self, admin: Player, reason: str) -> None:
         """Restrict `self` for `reason`, and log to sql."""
         await self.remove_privs(Privileges.NORMAL)
 
@@ -520,10 +534,10 @@ class Player:
 
         if self.online:
             # log the user out if they're offline, this
-            # will simply relog them and refresh their app.state.
+            # will simply relog them and refresh their app.state
             self.logout()
 
-    async def unrestrict(self, admin: "Player", reason: str) -> None:
+    async def unrestrict(self, admin: Player, reason: str) -> None:
         """Restrict `self` for `reason`, and log to sql."""
         await self.add_privs(Privileges.NORMAL)
 
@@ -561,10 +575,10 @@ class Player:
 
         if self.online:
             # log the user out if they're offline, this
-            # will simply relog them and refresh their app.state.
+            # will simply relog them and refresh their app.state
             self.logout()
 
-    async def silence(self, admin: "Player", duration: int, reason: str) -> None:
+    async def silence(self, admin: Player, duration: int, reason: str) -> None:
         """Silence `self` for `duration` seconds, and log to sql."""
         self.silence_end = int(time.time() + duration)
 
@@ -592,7 +606,7 @@ class Player:
 
         log(f"Silenced {self}.", Ansi.LCYAN)
 
-    async def unsilence(self, admin: "Player") -> None:
+    async def unsilence(self, admin: Player) -> None:
         """Unsilence `self`, and log to sql."""
         self.silence_end = int(time.time())
 
@@ -869,7 +883,7 @@ class Player:
         self.enqueue(app.packets.spectator_left(p.id))
         log(f"{p} is no longer spectating {self}.")
 
-    async def add_friend(self, p: "Player") -> None:
+    async def add_friend(self, p: Player) -> None:
         """Attempt to add `p` to `self`'s friends."""
         if p.id in self.friends:
             log(f"{self} tried to add {p}, who is already their friend!", Ansi.LYELLOW)
@@ -883,7 +897,7 @@ class Player:
 
         log(f"{self} friended {p}.")
 
-    async def remove_friend(self, p: "Player") -> None:
+    async def remove_friend(self, p: Player) -> None:
         """Attempt to remove `p` from `self`'s friends."""
         if p.id not in self.friends:
             log(f"{self} tried to unfriend {p}, who is not their friend!", Ansi.LYELLOW)
@@ -897,7 +911,7 @@ class Player:
 
         log(f"{self} unfriended {p}.")
 
-    async def add_block(self, p: "Player") -> None:
+    async def add_block(self, p: Player) -> None:
         """Attempt to add `p` to `self`'s blocks."""
         if p.id in self.blocks:
             log(
@@ -914,7 +928,7 @@ class Player:
 
         log(f"{self} blocked {p}.")
 
-    async def remove_block(self, p: "Player") -> None:
+    async def remove_block(self, p: Player) -> None:
         """Attempt to remove `p` from `self`'s blocks."""
         if p.id not in self.blocks:
             log(f"{self} tried to unblock {p}, who they haven't blocked!", Ansi.LYELLOW)
@@ -1073,6 +1087,8 @@ class Player:
             data = bytes(self._queue)
             self._queue.clear()
             return data
+
+        return None
 
     def send(self, msg: str, sender: Player, chan: Optional[Channel] = None) -> None:
         """Enqueue `sender`'s `msg` to `self`. Sent in `chan`, or dm."""
