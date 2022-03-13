@@ -492,6 +492,8 @@ async def settings_custom_post():
     usr_prv = Privileges(int(session['user_data']['priv']))
     if not session['user_data']['is_staff']:
         return await flash('error', f'This is supporter only feature!', 'settings/customization')
+    elif Privileges.SUPPORTER not in usr_prv or Privileges.PREMIUM not in usr_prv:
+        return await flash('error', f'This is supporter only feature!', 'settings/customization')
 
     files = await request.files
     banner = files.get('banner')
