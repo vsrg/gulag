@@ -1635,7 +1635,7 @@ async def peppyDMHandler():
 
 """ ingame registration """
 
-
+"""
 @router.post("/users")
 async def register_account(
     request: Request,
@@ -1807,7 +1807,7 @@ async def register_account(
         log(f"<{username} ({user_id})> has registered!", Ansi.LGREEN)
 
     return b"ok"  # success
-
+"""
 
 @router.post("/difficulty-rating")
 async def difficultyRatingHandler(request: Request):
