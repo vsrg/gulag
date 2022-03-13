@@ -325,10 +325,12 @@
                        href="/u/{{ user['id'] }}/{{ mode }}/no1s">
                         <span><i class="fas fa-trophy mr-2"></i>First Places</span>
                     </a>
+                    {% if session['user_data']['is_staff'] %}
                     <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20 mb-1.5"
                        href="/u/{{ user['id'] }}/{{ mode }}/notes">
                         <span><i class="fas fa-sticky-note mr-2"></i>Notes</span>
                     </a>
+                    {% endif %}
                 </div>
                 <div class="w-full mt-3 lg:mt-0 lg:ml-3">
                     {% block content %}{% endblock %}

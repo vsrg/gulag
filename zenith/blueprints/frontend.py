@@ -392,6 +392,11 @@ async def settings_profile_change_email():
 
 @frontend.route('/settings/profile/change_password', methods=['POST', 'GET'])
 async def settings_profile_change_password():
+    #* Update privs
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+    else:
+        return await flash_tohome("error", "You must be logged in to enter this page.")
     form = await request.form
     old_pwd = form.get('old_password', type=str)
     new_pwd = form.get('new_password', type=str)
@@ -430,6 +435,11 @@ async def settings_profile_change_password():
 
 @frontend.route('/settings/customization')
 async def settings_customizations():
+    #* Update privs
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+    else:
+        return await flash_tohome("error", "You must be logged in to enter this page.")
     return await render_template('settings/customization.html')
 
 @frontend.route('/settings/customization/avatar', methods=['POST'])
@@ -470,6 +480,58 @@ async def settings_avatar_post():
     pilavatar = utils.crop_image(pilavatar)
     pilavatar.save(os.path.join(AVATARS_PATH, f'{session["user_data"]["id"]}{file_extension.lower()}'))
     return await flash('success', 'Your avatar has been successfully changed!', 'settings/customization')
+
+@frontend.route('/settings/customization/banner_bg', methods=['POST'])
+async def settings_custom_post():
+    #* Update privs
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+    else:
+        return await flash_tohome("error", "You must be logged in to enter this page.")
+
+    usr_prv = Privileges(int(session['user_data']['priv']))
+    if not session['user_data']['is_staff']:
+        return await flash('error', f'This is supporter only feature!', 'settings/customization')
+
+    files = await request.files
+    banner = files.get('banner')
+    background = files.get('background')
+    ALLOWED_EXTENSIONS = ['.jpeg', '.jpg', '.png', '.gif']
+    # no file uploaded; deny post
+    if banner is None and background is None:
+        return await flash('error', 'No image was selected!', 'settings/customization')
+
+    if banner is not None and banner.filename:
+        _, file_extension = os.path.splitext(banner.filename.lower())
+        if not file_extension in ALLOWED_EXTENSIONS:
+            return await flash('error', f'The banner you select must be either a .JPG, .JPEG, .PNG or .GIF file!', 'settings/customization')
+
+        banner_file_no_ext = os.path.join(f'zenith/.data/banners', f'{session["user_data"]["id"]}')
+
+        # remove old picture
+        for ext in ALLOWED_EXTENSIONS:
+            banner_file_with_ext = f'{banner_file_no_ext}{ext}'
+            if os.path.isfile(banner_file_with_ext):
+                os.remove(banner_file_with_ext)
+
+        await banner.save(f'{banner_file_no_ext}{file_extension}')
+
+    if background is not None and background.filename:
+        _, file_extension = os.path.splitext(background.filename.lower())
+        if not file_extension in ALLOWED_EXTENSIONS:
+            return await flash('error', f'The background you select must be either a .JPG, .JPEG, .PNG or .GIF file!', 'settings/custom')
+
+        background_file_no_ext = os.path.join(f'zenith/.data/backgrounds', f'{session["user_data"]["id"]}')
+
+        # remove old picture
+        for ext in ALLOWED_EXTENSIONS:
+            background_file_with_ext = f'{background_file_no_ext}{ext}'
+            if os.path.isfile(background_file_with_ext):
+                os.remove(background_file_with_ext)
+
+        await background.save(f'{background_file_no_ext}{file_extension}')
+
+    return await flash('success', 'Your customisation has been successfully changed!', 'settings/customization')
 
 #! Dedicated docs
 @frontend.route('/docs/privacy_policy')
