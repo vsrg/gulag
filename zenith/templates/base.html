@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" {% if 'authenticated' in session and 'color' in session %}style="--main: {{ session['color'] }};"{% endif %}>
 <head>
     <head>
         <!--* Favicon *-->

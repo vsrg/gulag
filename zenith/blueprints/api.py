@@ -158,3 +158,27 @@ async def get_priv_badges():
     if Privileges.NORMAL not in uprv:
         badges.append(("RESTRICTED", "text-white"))
     return {"success":True, "badges": badges}
+
+@api.route('/update_color', methods=['POST'])
+async def update_color():
+    if not 'authenticated' in session:
+        return {'success': False, 'msg': 'Login required.'}
+    else:
+        await updateSession(session)
+
+    color = request.args.get('color', default=230, type=int)
+    color = int(color)
+
+    if color > 360:
+        color = 360
+    if color < 0:
+        color = 0
+
+    session['color'] = color
+    """
+    await app.state.services.database.execute(
+        "UPDATE customs SET color=:color WHERE userid=:id",
+        {"color": color, "id": session['user_data']['id']}
+    )
+    """
+    return {"success": True, "msg": f'Color changed to {color}'}

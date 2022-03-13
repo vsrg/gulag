@@ -128,6 +128,7 @@ async def updateSession(session, id:int=None):
         is_staff = True
     else:
         is_staff = False
+
     session['authenticated'] = True
     #session['player'] = app.state.sessions.players.from_cache_or_sql(name=user_info['name'])
     session['user_data'] = {

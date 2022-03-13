@@ -458,7 +458,6 @@ async def settings_avatar_post():
     ALLOWED_EXTENSIONS = ['.jpeg', '.jpg', '.png']
 
     avatar = (await request.files).get('avatar')
-    print(await request.files)
     # no file uploaded; deny post
     if avatar is None or not avatar.filename:
         return await flash('error', 'No image was selected!', 'settings/customization')

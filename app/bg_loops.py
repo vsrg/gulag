@@ -114,7 +114,7 @@ async def _bot_runner() -> None:
     intents = discord.Intents.all()
     #-> Define bot
     client = commands.Bot(command_prefix=configb.PREFIX, intents=intents, case_insensitive=True)
-    slash = SlashCommand(client, sync_commands=True, debug_guild=829366482739003432, sync_on_cog_reload=True)
+    slash = SlashCommand(client, sync_commands=True, debug_guild=893809157080223784, sync_on_cog_reload=True)
     dbot.client = client
     dbot.slash = slash
 

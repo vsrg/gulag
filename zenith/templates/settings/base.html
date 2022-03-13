@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" {% if 'authenticated' in session and 'color' in session %}style="--main: {{ session['color'] }};"{% endif %}>
 <head>
     <!--* Favicon *-->
     <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
@@ -38,7 +38,6 @@
 
     {% block header %}
     {% endblock %}
-  
 </head>
 <body class="text-white bg-hsl-15 overflow-x-hidden" style="max-width: 100%;">
 {% include 'components/navbar.html' %}
