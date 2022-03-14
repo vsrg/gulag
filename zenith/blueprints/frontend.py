@@ -280,11 +280,12 @@ async def profile(u:str=None, mode:int=None):
     if not u:
         return await utils.flash_tohome("error", "User not found") #switch to user specific 404
     u = dict(u)
-
+    if u['id'] == 1:
+        return flash_tohome('error', "Due to stuff getting absolute autism, viewing Ż Bot's profile is disabled.")
     #! Get author priv and check if target is restricted
     is_staff = 'authenticated' in session and session['user_data']['is_staff']
     if not (u['priv'] & Privileges.NORMAL or is_staff):
-        return (await render_template('404.html'), 404)
+        return (await render_template('errors/404.html'), 404)
 
     u['customisation'] = utils.has_profile_customizations(u['id'])
 

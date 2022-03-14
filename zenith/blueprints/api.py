@@ -8,16 +8,14 @@ import hashlib
 import os
 import time
 import datetime
+
+import databases
 import app.state.services
 from app.constants.privileges import Privileges
 from pandas import to_datetime
 
-from quart import Blueprint
-from quart import redirect
-from quart import render_template
-from quart import request
-from quart import session
-from quart import send_file
+from quart import (Blueprint, redirect, render_template,
+                   request, session, send_file, jsonify)
 
 from app.objects.player import Player
 from zenith.objects.constants import tables, mode_gulag_rev, mode2str
@@ -199,3 +197,40 @@ async def changeDefaultMode():
         {"mode": mode, "uid": session['user_data']['id']}
     )
     return {"success": True, "msg": f"Mode successfully changed to {mode}"}
+
+""" /search_users"""
+@api.route('/search_users', methods=['GET']) # GET
+async def search_users():
+    q = request.args.get('q', type=str)
+    if not q:
+        {"success": False, "users": []}
+    if q == '':
+        {"success": False, "users": []}
+
+    if 'authenticated' in session and session['user_data']['is_staff'] == True:
+        res = await app.state.services.database.fetch_all(
+            'SELECT id, name '
+            'FROM `users` '
+            'WHERE `name` LIKE :q '
+            'AND id!=1 '
+            'LIMIT 5',
+            {"q": q.join("%%")}
+        )
+    else:
+        res = await app.state.services.database.fetch_all(
+            'SELECT id, name '
+            'FROM `users` '
+            'WHERE priv & 1 AND `name` LIKE :q '
+            'AND id!=1 '
+            'LIMIT 5',
+            {"q": q.join("%%")}
+        )
+
+    new_res = []
+    for el in res:
+        new_res.append(dict(el))
+
+    res = new_res
+    del(new_res)
+
+    return {"success": True, "users": res}

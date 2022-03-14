@@ -74,7 +74,17 @@
                 </div>
             </div>
         </div>
-        <div class="invisible w-0 sm:visible sm:w-auto ml-auto">
+        <!-- User Search-->
+        <div class="hidden lg:flex ml-auto mr-4 w-44">
+            <input type="text" name="search-bar"
+                   class="bg-gray-100 rounded-full py-2 px-5 text-gray-800 font-extralight text-sm
+                   bg-gray-120 focus:bg-hsl-90 transition duration-300 outline-none"
+                   placeholder="Search User" onkeyup="searchUsers(this.value)"
+            />
+            <div class="hidden mt-12 bg-gray-100 w-48 py-2 rounded-lg" id="search-results">
+            </div>
+        </div>
+        <div class="invisible w-0 sm:visible sm:w-auto">
             {% if 'authenticated' in session %}
             <div x-data="{ open: false }" @click.away="open = false" class="relative invisible w-0 sm:visible sm:w-auto">
                 <!-- Dropdown toggle button -->
@@ -92,9 +102,6 @@
                      class="absolute right-0 w-48 py-2 mt-5 bg-hsl-10 rounded-md shadow-xl">
                     <a href="/u/{{ session['user_data']['id'] }}" class="block bg-hsl-10 hover:bg-hsl-20 px-4 py-2 text-sm text-gray-200 hover:text-hsl-70 border-l-2 border-transparent hover:border-hsl-60">
                         Profile
-                    </a>
-                    <a href="/relationships" class="block bg-hsl-10 hover:bg-hsl-20 px-4 py-2 text-sm text-gray-200 hover:text-hsl-70 border-l-2 border-transparent hover:border-hsl-60">
-                        Friends
                     </a>
                     <a href="/settings" class="block bg-hsl-10 hover:bg-hsl-20 px-4 py-2 text-sm text-gray-200 hover:text-hsl-70 border-l-2 border-transparent hover:border-hsl-60">
                         Settings
@@ -129,4 +136,40 @@
 {% if tohome == True %}
 {% include 'components/flashes.html' %}
 {% endif %}
+<script>
+    resbox = document.getElementById('search-results')
+    function searchUsers(querry) {
+        if (querry.length != 0) {
+            axios.get('https://{{ domain() }}/wapi/search_users?q=' + querry)
+            .then(r => {
+                r = r.data.users
+                if (r.length != 0) {
+                    resbox.classList.add('absolute')
+                    resbox.classList.remove('hidden')
+                    resbox.innerHTML = ""
+                    for (el of r) {
+                        resbox.innerHTML +=
+                    `<a href="/u/${el.id}">
+                            <div class="w-full py-0.5 text-sm text-gray-700 hover:bg-hsl-90
+                                transition duration-200 ease-in-out">
+                                <div class="flex items-center mx-2">
+                                    <img src="https://a.{{ domain() }}/${el.id}" class="h-9 w-9 rounded-full mr-2">
+                                    <span>${el.name}</span>
+                                </div>
+                            </div>
+                        </a>`
+                    }
+                } else {
+                    resbox.classList.add('hidden')
+                    resbox.classList.remove('absolute')
+                    resbox.innerHTML = ""
+                }
+            })
+        } else {
+            resbox.innerHTML = ""
+            resbox.classList.add('hidden')
+            resbox.classList.remove('absolute')
+        }
+    }
+</script>
 </nav>
