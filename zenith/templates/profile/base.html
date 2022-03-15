@@ -157,16 +157,20 @@
 {% if user['customisation']['background'] == True %}
 <style>
 
-      body {
+    body {
         background:
           linear-gradient(
-            hsla(var(--main), 25%, 25%, 0.7),
-            hsla(var(--main), 10%, 10%, 0.7)),
+            hsla(var(--main), 15%, 15%, 0.8),
+            hsla(var(--main), 15%, 15%, 1)),
             url("/backgrounds/{{ user['id'] }}") !important;
-        background-size: contain;
-        background-clip: content-box;
-        background-repeat: no-repeat;
+        background-size: cover !important;
+        background-clip: content-box !important;
+        background-repeat: no-repeat !important;
+        background-color: hsl(var(--main), 15%, 15%) !important;
+        height: 100vh !important;
+        margin-bottom: 100px;
     }
+
 </style>
 {% endif %}
 <style>
