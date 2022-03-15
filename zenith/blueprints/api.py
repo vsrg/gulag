@@ -203,9 +203,9 @@ async def changeDefaultMode():
 async def search_users():
     q = request.args.get('q', type=str)
     if not q:
-        {"success": False, "users": []}
+        return {"success": False, "users": []}
     if q == '':
-        {"success": False, "users": []}
+        return {"success": False, "users": []}
 
     if 'authenticated' in session and session['user_data']['is_staff'] == True:
         res = await app.state.services.database.fetch_all(
