@@ -341,6 +341,9 @@ async def get_profile_background(user_id: int):
 
     return b'{"status":404}'
 
+@frontend.route('/score/<id>')
+async def score_page(id:int=None):
+    return await render_template('score.html')
 #! Settings
 @frontend.route('/settings')
 async def default_settings_redirect():
@@ -492,9 +495,9 @@ async def settings_custom_post():
         return await flash_tohome("error", "You must be logged in to enter this page.")
 
     usr_prv = Privileges(int(session['user_data']['priv']))
-    if not session['user_data']['is_staff']:
-        return await flash('error', f'This is supporter only feature!', 'settings/customization')
-    elif Privileges.SUPPORTER not in usr_prv and Privileges.PREMIUM not in usr_prv:
+    if (Privileges.SUPPORTER not in usr_prv
+        and Privileges.PREMIUM not in usr_prv
+        and not session['user_data']['is_staff']):
         return await flash('error', f'This is supporter only feature!', 'settings/customization')
 
     files = await request.files
