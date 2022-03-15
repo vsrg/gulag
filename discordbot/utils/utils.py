@@ -26,7 +26,7 @@ async def getUser(ctx: commands.Context, to_select:str, user):
         """Gets user from database using discord's context."""
         if user == None: #Self usage
             user = await app.state.services.database.fetch_val(
-                "SELECT osu_id FROM discord WHERE discord_id = :userself",
+                "SELECT userid FROM customs WHERE discord_id = :userself",
                 {"userself": ctx.author.id}
             )
             if not user:
@@ -44,7 +44,7 @@ async def getUser(ctx: commands.Context, to_select:str, user):
             if not user:
                 return {"error": "usr_not_found"}
             discord:int = await app.state.services.database.fetch_val(
-                "SELECT discord_id FROM discord WHERE osu_id = :oid",
+                "SELECT discord_id FROM customs WHERE userid = :oid",
                 {"oid": user[0]}
             )
             if not discord:
@@ -56,7 +56,7 @@ async def getUser(ctx: commands.Context, to_select:str, user):
         else: #Mention
             user = user[3:-1]
             user = await app.state.services.database.fetch_val(
-                "SELECT osu_id FROM discord WHERE discord_id = :mention",
+                "SELECT userid FROM customs WHERE discord_id = :mention",
                 {"mention": user}
             )
             if not user:

@@ -170,7 +170,7 @@ class osu(commands.Cog):
             "SELECT t.id, t.map_md5, t.score, t.pp, t.acc, t.max_combo, "
             "t.mods, t.n300, t.n100, t.n50, t.nmiss, t.ngeki, t.nkatu, t.grade, "
             "t.status, t.mode, t.play_time, t.time_elapsed, t.perfect "
-            f"FROM {mode.scores_table} t "
+            f"FROM scores t "
             "INNER JOIN maps b ON t.map_md5 = b.md5 "
             "WHERE t.userid = :user_id AND t.mode = :mode_vn",
         ]
