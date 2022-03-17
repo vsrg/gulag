@@ -58,6 +58,8 @@ __all__ = (
     "create_config_from_default",
     "orjson_serialize_to_str",
     "get_media_type",
+    "has_jpeg_headers_and_trailers",
+    "has_png_headers_and_trailers",
 )
 
 DATA_PATH = Path.cwd() / ".data"
@@ -241,7 +243,7 @@ def processes_listening_on_unix_socket(socket_path: str) -> int:
     process_count = 0
 
     for line in unix_socket_data[1:]:
-        # 0000000045fe59d0: 00000002 00000000 00010000 0005 01 17665 /tmp/gulag.sock
+        # 0000000045fe59d0: 00000002 00000000 00010000 0005 01 17665 /tmp/bancho.sock
         tokens = line.split()
 
         # unused params
@@ -267,7 +269,7 @@ def running_via_asgi_webserver() -> bool:
 
 
 def _install_synchronous_excepthook() -> None:
-    """Install a thin wrapper for sys.excepthook to catch gulag-related stuff."""
+    """Install a thin wrapper for sys.excepthook to catch bancho-related stuff."""
     real_excepthook = sys.excepthook  # backup
 
     def _excepthook(
@@ -283,7 +285,7 @@ def _install_synchronous_excepthook() -> None:
         ):
             attr_name = value.args[0][34:-1]
             log(
-                "gulag's config has been updated, and has "
+                "bancho.py's config has been updated, and has "
                 f"added a new `{attr_name}` attribute.",
                 Ansi.LMAGENTA,
             )
@@ -295,7 +297,7 @@ def _install_synchronous_excepthook() -> None:
             return
 
         printc(
-            f"gulag v{app.settings.VERSION} ran into an issue before starting up :(",
+            f"bancho.py v{app.settings.VERSION} ran into an issue before starting up :(",
             Ansi.RED,
         )
         real_excepthook(type_, value, traceback)  # type: ignore
@@ -373,20 +375,20 @@ def escape_enum(
 
 
 def ensure_supported_platform() -> int:
-    """Ensure we're running on an appropriate platform for gulag."""
+    """Ensure we're running on an appropriate platform for bancho.py."""
     if sys.platform != "linux":
-        log("gulag currently only supports linux", Ansi.LRED)
+        log("bancho.py currently only supports linux", Ansi.LRED)
         if sys.platform == "win32":
             log(
                 "you could also try wsl(2), i'd recommend ubuntu 18.04 "
-                "(i use it to test gulag)",
+                "(i use it to test bancho.py)",
                 Ansi.LBLUE,
             )
         return 1
 
     if sys.version_info < (3, 9):
         log(
-            "gulag uses many modern python features, "
+            "bancho.py uses many modern python features, "
             "and the minimum python version is 3.9.",
             Ansi.LRED,
         )
@@ -444,7 +446,7 @@ def ensure_directory_structure() -> int:
 
 
 def ensure_dependencies_and_requirements() -> int:
-    """Make sure all of gulag's dependencies are ready."""
+    """Make sure all of bancho.py's dependencies are ready."""
     if (
         not OPPAI_PATH.exists()
         or not (OPPAI_PATH / "pybind11").exists()
@@ -475,7 +477,7 @@ def ensure_dependencies_and_requirements() -> int:
             return exit_code
 
         log(
-            "oppai-ng built, please start gulag again!",
+            "oppai-ng built, please start bancho.py again!",
             Ansi.LMAGENTA,
         )  # restart is required to fix imports
 
@@ -530,7 +532,7 @@ def display_startup_dialog() -> None:
     # unnecessary power over the operating system and is not advised.
     if os.geteuid() == 0:
         log(
-            "It is not recommended to run gulag as root, especially in production..",
+            "It is not recommended to run bancho.py as root, especially in production..",
             Ansi.LYELLOW,
         )
 
@@ -558,3 +560,14 @@ def get_media_type(extension: str) -> Optional[str]:
         return "image/png"
 
     # return none, fastapi will attempt to figure it out
+
+
+def has_jpeg_headers_and_trailers(data_view: memoryview) -> bool:
+    return data_view[:4] == b"\xff\xd8\xff\xe0" and data_view[6:11] == b"JFIF\x00"
+
+
+def has_png_headers_and_trailers(data_view: memoryview) -> bool:
+    return (
+        data_view[:8] == b"\x89PNG\r\n\x1a\n"
+        and data_view[-8] == b"\x49END\xae\x42\x60\x82"
+    )

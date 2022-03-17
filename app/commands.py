@@ -383,7 +383,7 @@ async def recent(ctx: Context) -> Optional[str]:
         rank = s.rank if s.status == SubmissionStatus.BEST else "NA"
         l.append(f"PASS {{{s.pp:.2f}pp #{rank}}}")
     else:
-        # XXX: prior to v3.2.0, gulag didn't parse total_length from
+        # XXX: prior to v3.2.0, bancho.py didn't parse total_length from
         # the osu!api, and thus this can do some zerodivision moments.
         # this can probably be removed in the future, or better yet
         # replaced with a better system to fix the maps.
@@ -939,7 +939,7 @@ async def user(ctx: Context) -> Optional[str]:
             f"Channels: {[p._name for p in p.channels]}",
             f"Logged in: {timeago.format(p.login_time)}",
             f"Last server interaction: {timeago.format(p.last_recv_time)}",
-            f"osu! build: {p.osu_ver} | Tourney: {p.tourney_client}",
+            f"osu! build: {p.client_details.osu_version.date} | Tourney: {p.tourney_client}",
             f"Silenced: {p.silenced} | Spectating: {p.spectating}",
             f"Last /np: {last_np}",
             f"Recent score: {p.recent_score}",
@@ -1478,7 +1478,7 @@ async def reload(ctx: Context) -> Optional[str]:
 async def server(ctx: Context) -> Optional[str]:
     """Retrieve performance data about the server."""
 
-    build_str = f"gulag v{app.settings.VERSION} ({app.settings.DOMAIN})"
+    build_str = f"bancho.py v{app.settings.VERSION} ({app.settings.DOMAIN})"
 
     # get info about this process
     proc = psutil.Process(os.getpid())
@@ -1501,9 +1501,9 @@ async def server(ctx: Context) -> Optional[str]:
     # get system-wide ram usage
     sys_ram = psutil.virtual_memory()
 
-    # output ram usage as `{gulag_used}MB / {sys_used}MB / {sys_total}MB`
-    gulag_ram = proc.memory_info()[0]
-    ram_values = (gulag_ram, sys_ram.used, sys_ram.total)
+    # output ram usage as `{bancho_used}MB / {sys_used}MB / {sys_total}MB`
+    bancho_ram = proc.memory_info()[0]
+    ram_values = (bancho_ram, sys_ram.used, sys_ram.total)
     ram_info = " / ".join([f"{v // 1024 ** 2}MB" for v in ram_values])
 
     # current state of settings
@@ -1602,7 +1602,7 @@ if app.settings.DEVELOPER_MODE:
     @command(Privileges.DEVELOPER)
     async def py(ctx: Context) -> Optional[str]:
         """Allow for (async) access to the python interpreter."""
-        # This can be very good for getting used to gulag's API; just look
+        # This can be very good for getting used to bancho.py's API; just look
         # around the codebase and find things to play with in your server.
         # Ex: !py return (await app.state.sessions.players.get(name='cmyui')).status.action
         if not ctx.args:
@@ -1619,9 +1619,6 @@ if app.settings.DEVELOPER_MODE:
 
         if "__py" in __py_namespace:
             del __py_namespace["__py"]
-
-        if ret is None:
-            return "Success"
 
         # TODO: perhaps size checks?
 
@@ -2043,7 +2040,7 @@ async def mp_condition(ctx: Context, match: Match) -> Optional[str]:
 
     if cond == "pp":
         # special case - pp can't actually be used as an ingame
-        # win condition, but gulag allows it to be passed into
+        # win condition, but bancho.py allows it to be passed into
         # this command during a scrims to use pp as a win cond.
         if not match.is_scrimming:
             return "PP is only useful as a win condition during scrims."
@@ -2532,7 +2529,7 @@ async def pool_info(ctx: Context) -> Optional[str]:
 
 
 """ Clan managment commands
-# The commands below are for managing gulag
+# The commands below are for managing bancho.py
 # clans, for users, clan staff, and server staff.
 """
 
@@ -2739,7 +2736,7 @@ async def clan_list(ctx: Context) -> Optional[str]:
     if offset >= (total_clans := len(app.state.sessions.clans)):
         return "No clans found."
 
-    msg = [f"gulag clans listing ({total_clans} total)."]
+    msg = [f"bancho.py clans listing ({total_clans} total)."]
 
     for idx, clan in enumerate(app.state.sessions.clans, offset):
         msg.append(f"{idx + 1}. {clan!r}")
