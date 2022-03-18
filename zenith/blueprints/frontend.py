@@ -24,7 +24,7 @@ from zenith import zconfig
 from zenith.objects import regexes, utils
 from zenith.objects.utils import flash, flash_tohome, validate_password
 from app.constants import gamemodes
-
+from app.constants.mods import Mods
 frontend = Blueprint('frontend', __name__)
 
 @frontend.route('/')
@@ -343,7 +343,55 @@ async def get_profile_background(user_id: int):
 
 @frontend.route('/score/<id>')
 async def score_page(id:int=None):
-    return await render_template('score.html')
+    #* Update privs
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+    else:
+        return await flash_tohome("error", "You must be logged in to enter this page.")
+    # Get user and check priv
+    s = await app.state.services.database.fetch_one(
+        "SELECT id, map_md5, score, pp, acc, max_combo, mods, n300, n100, n50, "
+        "nmiss, ngeki, nkatu, grade, status, mode,  userid, play_time, online_checksum "
+        "FROM scores WHERE id=:id",
+        {"id": id}
+    )
+    if not s:
+        return await flash_tohome('error', "Score not found.")
+    s = dict(s)
+    u = await app.state.services.database.fetch_one(
+        "SELECT id, name, priv FROM users WHERE id=:id",
+        {"id": s['userid']}
+    )
+    if not u:
+        return await flash_tohome('error', "Database error, user not found, report this to developers.")
+    u = dict(u)
+    if Privileges.NORMAL not in Privileges(u['priv']):
+       if ('authenticated' not in session or not session['user_data']['is_staff']
+           or u['id'] != session['user_data']['id']):
+           return await flash_tohome('error', "Score not found.")
+
+    m = await app.state.services.database.fetch_one(
+        "SELECT id, set_id, artist, title, version, creator, diff "
+        "FROM maps WHERE md5=:md5",
+        {"md5": s['map_md5']}
+    )
+    if not m:
+        return await flash_tohome('error', "Database error, map not found, report this to developers.")
+    m = dict(m)
+
+    #* Format stuff
+    s['score'] = "{:,}".format(s['score'])
+    s['pp'] = round(s['pp'], 2)
+    s['acc'] = round(s['acc'], 2)
+    m['diff'] = round(m['diff'], 2)
+    m['diff_color'] = utils.getDiffColor(m['diff'])
+    if s['mods'] != 0:
+        s['mods'] = f"+{Mods(s['mods'])!r}"
+    else:
+         s['mods'] = "No Mods"
+
+    return await render_template('score.html', user=u, map=m, score=s)
+
 #! Settings
 @frontend.route('/settings')
 async def default_settings_redirect():

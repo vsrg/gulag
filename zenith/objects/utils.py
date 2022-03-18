@@ -11,7 +11,18 @@ from app.constants.privileges import Privileges
 from app.state import website as zglob
 from cmyui.logging import Ansi, log
 from quart import render_template, session
+import spectra
 
+diffColors = spectra.scale([ spectra.html(x).to("lab") for x in (['#4290FB', '#4FC0FF', '#4FFFD5', '#7CFF4F', '#F6F05C', '#FF8068', '#FF4E6F', '#C645B8', '#6563DE', '#18158E', '#000000']) ])
+diffColorsDomain = diffColors.domain([0.1, 1.25, 2, 2.5, 3.3, 4.2, 4.9, 5.8, 6.7, 7.7, 9])
+def getDiffColor(diff:float):
+    """Get diff color from color spectrum"""
+    if diff <= 9:
+        return diffColorsDomain(diff).hexcode
+    elif diff <= 0.1:
+        return "#AAAAAA"
+    else:
+        return "#000000"
 if TYPE_CHECKING:
     from PIL import Image
 
