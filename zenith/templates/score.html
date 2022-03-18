@@ -22,13 +22,13 @@
                 </div>
             </a>
             <div class="flex items-center">
-                {% if mode in [0,4,8] %}
+                {% if score['mode'] in [0,4,8] %}
                 <i class="mode-icon osu" style="color: {{ map['diff_color'] }}"></i>
-                {% elif mode in [1,6] %}
+                {% elif score['mode'] in [1,6] %}
                 <i class="mode-icon taiko" style="color: {{ map['diff_color'] }}"></i>
-                {% elif mode in [2,6] %}
+                {% elif score['mode'] in [2,6] %}
                 <i class="mode-icon catch" style="color: {{ map['diff_color'] }}"></i>
-                {% elif mode == 3 %}
+                {% elif score['mode'] == 3 %}
                 <i class="mode-icon mania" style="color: {{ map['diff_color'] }}"></i>
                 {% endif %}
                 <figure class="py-0.5 px-2 bg-hsl-15 text-xs flex flex-row items-center rounded-full mx-2"
