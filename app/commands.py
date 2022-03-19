@@ -1540,9 +1540,7 @@ async def server(ctx: Context) -> Optional[str]:
 @command(Privileges.DEVELOPER)
 async def redisrecalc(ctx):
     await app.state.services.redis.delete("*")
-    for i in range (0,9):
-        if i == 7:
-            continue
+    for i in [0,1,2,3,4,5,6,8]:
         res = await app.state.services.database.fetch_all(
             "SELECT u.id, u.priv, u.country, s.pp "
             "FROM users u "
@@ -1556,14 +1554,15 @@ async def redisrecalc(ctx):
                 pass
             else:
                 try:
+                    # global rank
                     await app.state.services.redis.zadd(
-                        f"gulag:leaderboard:{i}",
+                        f"bancho:leaderboard:{i}",
                         {el['id']:el['pp']},
                     )
 
                     # country rank
                     await app.state.services.redis.zadd(
-                        f"gulag:leaderboard:{i}:{el['country']}",
+                        f"bancho:leaderboard:{i}:{el['country']}",
                         {el['id']: el['pp']},
                     )
                 except Exception:
