@@ -60,9 +60,13 @@
                        href="/settings/profile">
                         <span><i class="fas fa-user mr-2"></i>Profile Settings</span>
                     </a>
-                    <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20 mb-1.5"
+                    <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20"
                        href="/settings/customization">
                         <span><i class="far fa-edit mr-2"></i>Customization</span>
+                    </a>
+                    <a class="pl-4 text-white hover:text-hsl-90 transform duration-200 py-1.5 hover:bg-hsl-15-20 mb-1.5"
+                       href="/settings/about_me">
+                        <span><i class="fas fa-comment-alt mr-2"></i>About Me</span>
                     </a>
                 </div>
                 <div class="w-full mt-3 lg:mt-0 lg:ml-3 bg-hsl-20 rounded-lg">
@@ -98,6 +102,23 @@
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--main), 30%, 30%);
+  }
+</style>
+<style>
+  /* Change Autocomplete styles */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    box-shadow: 0 0 0px 1000px rgba(0,0,0,0) inset;
+    -webkit-text-fill-color: white;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(0,0,0,0) inset;
+    transition: background-color 5000s ease-in-out 0s;
   }
 </style>
 <!-- Scripts -->

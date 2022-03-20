@@ -86,7 +86,6 @@ async def validate_captcha(data: str) -> bool:
 BANNERS_PATH = Path.cwd() / 'zenith/.data/banners'
 BACKGROUND_PATH = Path.cwd() / 'zenith/.data/backgrounds'
 def has_profile_customizations(user_id: int = 0) -> dict[str, bool]:
-    print(f"{BANNERS_PATH=} {BACKGROUND_PATH=}")
     # check for custom banner image file
     for ext in ('jpg', 'jpeg', 'png', 'gif'):
         path = BANNERS_PATH / f'{user_id}.{ext}'

@@ -496,7 +496,7 @@ async def login(
             day=int(match["date"][6:8]),
         ),
         revision=int(match["revision"]) if match["revision"] else None,
-        stream=match["stream"],  # type: ignore
+        stream=match["stream"] or "stable",
     )
 
     # disallow login for clients older than 90 days
@@ -962,7 +962,12 @@ class SpectateFrames(BasePacket):
         self.frame_bundle = reader.read_replayframe_bundle()
 
     async def handle(self, p: Player) -> None:
-        # packing this manually is about ~3x faster
+        # TODO: perform validations on the parsed frame bundle
+        # to ensure it's not being tamperated with or weaponized.
+
+        # NOTE: this is given a fastpath here for efficiency due to the
+        # sheer rate of usage of these packets in spectator mode.
+
         # data = app.packets.spectateFrames(self.frame_bundle.raw_data)
         data = (
             struct.pack("<HxI", 15, len(self.frame_bundle.raw_data))

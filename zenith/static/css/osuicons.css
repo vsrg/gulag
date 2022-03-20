@@ -11,29 +11,34 @@
 
   .osu::before {
     content: "\E800";
-    position: relative;
+    position: block;
     margin: 0px;
+    z-index: 500;
   }
   .std::before {
     content: "\E800";
-    position: relative;
+    position: block;
     margin: 0px;
+    z-index: 500;
   }
 
   .catch::before {
     content: "\E801";
-    position: relative;
+    position: block;
     margin: 0px;
+    z-index: 500;
   }
 
   .mania::before {
     content: "\E802";
-    position: relative;
+    position: block;
     margin: 0px;
+    z-index: 500;
   }
 
   .taiko::before {
     content: "\E803";
-    position: relative;
+    position: block;
     margin: 0px;
+    z-index: 500;
   }
