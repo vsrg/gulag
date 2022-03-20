@@ -294,21 +294,40 @@
                                        id="userinfo-latest_activity-text">3 months ago</p>
                                 </div>
                             </div>
-                            <!--TODO: Implement on server side
-                            <div class="hidden sm:flex mt-1">
-                                <div class="flex mx-3 items-center">
+                            {% if customs %}
+                            <!-- Website, Interests location and discord-->
+                            <div class="hidden sm:flex mt-1 ml-1">
+                                {% if customs['website'] %}
+                                <div class="flex mx-2 items-center">
                                     <i class="fas fa-globe mr-1"></i>
-                                    <a href="https://seventwentyseven.xyz"
+                                    <a href="https://{{ customs['website'] }}"
                                        class="text-hsl-80 font-medium hover:underline">
-                                        seventwentyseven.xyz
+                                        {{ customs['website'] }}
                                     </a>
                                 </div>
-                                <div class="flex mx-3 items-center">
+                                {% endif %}
+                                {% if customs['discord_tag'] %}
+                                <div class="flex mx-2 items-center" id="discord_tag-block">
                                     <i class="fab fa-discord mr-1"></i>
-                                    <p class="text-hsl-80 font-medium">def750#2296</p>
+                                    <p class="text-hsl-80 font-medium" id="discord_tag" onclick="discordTagCopy()">
+                                        {{ customs['discord_tag'] }}
+                                    </p>
                                 </div>
+                                {% endif %}
+                                {% if customs['interests'] %}
+                                <div class="flex mx-2 items-center">
+                                    <i class="fas fa-suitcase mr-1"></i>
+                                    <p class="text-hsl-80 font-medium">{{ customs['interests'] }}</p>
+                                </div>
+                                {% endif %}
+                                {% if customs['location'] %}
+                                <div class="flex mx-2 items-center">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    <p class="text-hsl-80 font-medium">{{ customs['location']  }}</p>
+                                </div>
+                                {% endif %}
                             </div>
-                            -->
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -521,4 +540,17 @@
 
     getUserStatus("{{user['id']}}")
 </script>
+{% if customs['discord_tag'] %}
+<script>
+    tippy('#discord_tag-block', {
+        content: "Click to copy",
+        theme: 'translucent'
+    });
+
+    // Kopiuj Twardziej
+    function discordTagCopy() {
+        navigator.clipboard.writeText('{{ customs["discord_tag"] }}');
+      }
+</script>
+{% endif %}
 </html>

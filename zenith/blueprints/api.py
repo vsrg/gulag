@@ -3,13 +3,11 @@
 __all__ = ()
 
 from curses.ascii import isdigit
-import bcrypt
-import hashlib
-import os
-import time
 import datetime
-
+import json
 import databases
+import service_identity
+
 import app.state.services
 from app.constants.privileges import Privileges
 from pandas import to_datetime
@@ -18,7 +16,7 @@ from quart import (Blueprint, redirect, render_template,
                    request, session, send_file, jsonify)
 
 from app.objects.player import Player
-from zenith.objects.constants import tables, mode_gulag_rev, mode2str
+from zenith.objects.constants import mode_gulag_rev, mode2str
 from zenith.objects.utils import *
 from zenith import zconfig
 
@@ -60,44 +58,6 @@ async def get_records():
         records[mode2str[i]] = record
 
     return {"success": True, "records": records}
-
-@api.route('/remove_relationship')
-async def remove_relationship():
-    r_type = request.args.get('type', default=None, type=str)
-    target = request.args.get('target', default=None, type=str)
-
-    # Check if logged in
-    if 'authenticated' not in session:
-        return {"code":403, "status":"You must be authenticated to use this route."}
-
-    # Checks for type
-    if r_type == None:
-        return {"code":400, "status":"Must specify type"}
-    elif r_type.lower() not in ["friend", "block"]:
-        return {"code":400, "status":"Wrong type, allowed: friend, block."}
-
-    # Checks for id
-    if target == None:
-        return {"code":400, "status":"Must specify target"}
-    elif not target.isdigit():
-        return {"code":400, "status":"Id must be a digit"}
-
-    # Check if user has specified relationship with target user
-    check1 = await glob.db.fetch(
-        'SELECT * FROM relationships WHERE user1=%s AND user2=%s and type=%s',
-        (session['user_data']['id'], target, r_type)
-    )
-    if not check1 and r_type.lower() == "friend":
-        return {"code":400, "status":f"UID 4 is not friends with UID {target}"}
-    if not check1 and r_type.lower() == "block":
-        return {"code":400, "status":f"UID 4 is not blocking UID {target}"}
-    if not check1:
-        return {"code":400, "status":f"Unknown error occurred"}
-
-    await glob.db.execute('DELETE FROM relationships WHERE user1=%s AND user2=%s AND type=%s',
-                         (session['user_data']['id'], target, r_type))
-
-    return {"success": True, "msg": f"Successfully deleted {target} from {r_type} list"}
 
 @api.route('/get_last_registered', methods=["GET"])
 async def getLastRegistered():
@@ -208,6 +168,7 @@ async def search_users():
         return {"success": False, "users": []}
 
     if 'authenticated' in session and session['user_data']['is_staff'] == True:
+        # User is GMT/ADMIN/DEV
         res = await app.state.services.database.fetch_all(
             'SELECT id, name '
             'FROM `users` '
@@ -217,6 +178,7 @@ async def search_users():
             {"q": q.join("%%")}
         )
     else:
+        # Normal User
         res = await app.state.services.database.fetch_all(
             'SELECT id, name '
             'FROM `users` '
@@ -234,3 +196,126 @@ async def search_users():
     del(new_res)
 
     return {"success": True, "users": res}
+
+"""/update_user_discord"""
+@api.route('/update_user_discord', methods=['POST'])
+async def update_user_discord():
+    if not 'authenticated' in session:
+        return {'success': False, 'msg': 'Login required.'}
+    else:
+        await updateSession(session)
+
+    d = await request.get_data()
+    d = json.loads(d.decode('utf-8'))
+
+    user = await app.state.services.database.fetch_val(
+        "SELECT 1 FROM customs WHERE userid=:id",
+        {"id": session['user_data']['id']}
+    )
+    if user:
+        await app.state.services.database.execute(
+            "UPDATE customs SET discord_tag=:data WHERE userid=:uid",
+            {"data": d['data'], "uid": session['user_data']['id']}
+        )
+    else:
+        await app.state.services.database.execute(
+            "INSERT INTO customs (`userid`, `discord_tag`) VALUES (:uid, :data)",
+            {"data": d['data'], "uid": session['user_data']['id']}
+        )
+    return {'success': True}
+
+"""/update_user_location"""
+@api.route('/update_user_location', methods=['POST'])
+async def update_user_location():
+    if not 'authenticated' in session:
+        return {'success': False, 'msg': 'Login required.'}
+    else:
+        await updateSession(session)
+
+    d = await request.get_data()
+    d = json.loads(d.decode('utf-8'))
+
+    user = await app.state.services.database.fetch_val(
+        "SELECT 1 FROM customs WHERE userid=:id",
+        {"id": session['user_data']['id']}
+    )
+    if user:
+        await app.state.services.database.execute(
+            "UPDATE customs SET location=:data WHERE userid=:uid",
+            {"data": d['data'], "uid": session['user_data']['id']}
+        )
+    else:
+        await app.state.services.database.execute(
+            "INSERT INTO customs (`userid`, `location`) VALUES (:uid, :data)",
+            {"data": d['data'], "uid": session['user_data']['id']}
+        )
+    return {'success': True}
+
+"""/update_user_interests"""
+@api.route('/update_user_interests', methods=['POST'])
+async def update_user_interests():
+    if not 'authenticated' in session:
+        return {'success': False, 'msg': 'Login required.'}
+    else:
+        await updateSession(session)
+
+    d = await request.get_data()
+    d = json.loads(d.decode('utf-8'))
+
+    user = await app.state.services.database.fetch_val(
+        "SELECT 1 FROM customs WHERE userid=:id",
+        {"id": session['user_data']['id']}
+    )
+    if user:
+        await app.state.services.database.execute(
+            "UPDATE customs SET interests=:data WHERE userid=:uid",
+            {"data": d['data'], "uid": session['user_data']['id']}
+        )
+    else:
+        await app.state.services.database.execute(
+            "INSERT INTO customs (`userid`, `interests`) VALUES (:uid, :data)",
+            {"data": d['data'], "uid": session['user_data']['id']}
+        )
+    return {'success': True}
+
+"""/update_user_website"""
+@api.route('/update_user_website', methods=['POST'])
+async def update_user_website():
+    if not 'authenticated' in session:
+        return {'success': False, 'msg': 'Login required.'}
+    else:
+        await updateSession(session)
+
+    d = await request.get_data()
+    d = json.loads(d.decode('utf-8'))
+
+    user = await app.state.services.database.fetch_val(
+        "SELECT 1 FROM customs WHERE userid=:id",
+        {"id": session['user_data']['id']}
+    )
+    if user:
+        await app.state.services.database.execute(
+            "UPDATE customs SET website=:data WHERE userid=:uid",
+            {"data": d['data'], "uid": session['user_data']['id']}
+        )
+    else:
+        await app.state.services.database.execute(
+            "INSERT INTO customs (`userid`, `website`) VALUES (:uid, :data)",
+            {"data": d['data'], "uid": session['user_data']['id']}
+        )
+    return {'success': True}
+
+@api.route('/update_aboutme', methods=['POST'])
+async def update_aboutme():
+    if not 'authenticated' in session:
+        return {'success': False, 'msg': 'Login required.'}
+    else:
+        await updateSession(session)
+
+    d = await request.get_data()
+    d = json.loads(d.decode('utf-8'))
+    await app.state.services.database.execute(
+        "UPDATE users SET userpage_content=:data WHERE id=:uid",
+        {"data": d['data'], "uid": session['user_data']['id']}
+    )
+    return {"success": True}

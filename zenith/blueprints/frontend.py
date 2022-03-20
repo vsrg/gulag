@@ -310,11 +310,19 @@ async def profile(u:str=None, mode:int=None):
     u['latest_activity_dt'] = datetime.datetime.fromtimestamp(float(u['latest_activity']))
     s['playtime'] = datetime.timedelta(seconds=s['playtime'])
 
-    #Unnecessary checks :trolley:
+    #Convert markdown to html
     if u['userpage_content'] != None:
         u['userpage_content'] = md(u['userpage_content'])
+        u['userpage_content'] = u['userpage_content'].replace("\n", "<br>")
 
-    return await render_template('profile/home.html', user=u, mode=mode, stats=s, cur_page="home")
+    #Fetch user's customs
+    customs = await app.state.services.database.fetch_one(
+        "SELECT website, discord_tag, interests, location "
+        "FROM customs WHERE userid=:uid",
+        {"uid": u['id']}
+    )
+
+    return await render_template('profile/home.html', user=u, mode=mode, stats=s, cur_page="home", customs=customs)
 
 
 #! profile customization
@@ -587,6 +595,19 @@ async def settings_custom_post():
         await background.save(f'{background_file_no_ext}{file_extension}')
 
     return await flash('success', 'Your customisation has been successfully changed!', 'settings/customization')
+
+@frontend.route('/settings/about_me', methods=["GET"])
+async def settings_about_me():
+    #* Update privs
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+    else:
+        return await flash_tohome("error", "You must be logged in to enter this page.")
+
+    if Privileges.BLOCK_ABOUT_ME in Privileges(int(session['user_data']['priv'])):
+        return await flash_tohome('error', "You are banned from changing your about me, for more info contact staff.")
+
+    return await render_template('settings/about_me.html')
 
 #! Dedicated docs
 @frontend.route('/docs/privacy_policy')
