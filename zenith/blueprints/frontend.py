@@ -604,10 +604,16 @@ async def settings_about_me():
     else:
         return await flash_tohome("error", "You must be logged in to enter this page.")
 
+    cur_abtme = await app.state.services.database.fetch_val(
+        "SELECT userpage_content FROM users WHERE id=:uid",
+        {"uid": session['user_data']['id']}
+    )
+    if not cur_abtme:
+        cur_abtme = ""
     if Privileges.BLOCK_ABOUT_ME in Privileges(int(session['user_data']['priv'])):
         return await flash_tohome('error', "You are banned from changing your about me, for more info contact staff.")
 
-    return await render_template('settings/about_me.html')
+    return await render_template('settings/about_me.html', cur_abtme=cur_abtme)
 
 #! Dedicated docs
 @frontend.route('/docs/privacy_policy')
