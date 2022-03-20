@@ -3,8 +3,8 @@ import asyncio
 from cmyui import AsyncSQLPool
 import datetime
 db_cridentials = {
-    "user": "admin",
-    "password": "QrFT^W5tPqKW=n3b6L!Ua=RW",
+    "user": "user",
+    "password": "password",
     "db": "gulag",
     "host": "localhost"
 }
