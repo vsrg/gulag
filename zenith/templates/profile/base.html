@@ -201,9 +201,24 @@
                     </div>
                     <div class="flex flex-col md:flex-row items-center md:items-start w-full mx-auto lg:mx-0 absolute -mt-48 md:-mt-20">
                         <!-- Avatar -->
+                        {% if 'authenticated' in session and session['user_data']['id'] == user['id'] %}
+                        <a href="/settings/customization">
+                            <div class="md:ml-10 h-28 w-28 md:h-36 md:w-36 rounded-lg shadow-md bg-cover bg-center"
+                                style="background-image: url(https://a.{{ domain() }}/{{ user['id'] }});"
+                                id="user-avatar">
+                            </div>
+                            <script>
+                                tippy('#user-avatar', {
+                                    content: "Click to change avatar.",
+                                    theme: 'translucent'
+                                });
+                            </script>
+                        </a>
+                        {% else %}
                         <div class="md:ml-10 h-28 w-28 md:h-36 md:w-36 rounded-lg shadow-md bg-cover bg-center"
                              style="background-image: url(https://a.{{ domain() }}/{{ user['id'] }});">
                         </div>
+                        {% endif %}
                         <!-- User Title -->
                         <div class="flex flex-col items-center md:items-start md:ml-5 mt-3 md:mt-0">
                             <div class="flex items-center">
@@ -431,10 +446,6 @@
   href="https://unpkg.com/tippy.js@6/themes/translucent.css"
 />
 <script>
-    tippy('#userinfo-registered', {
-        content: "{{ user['register_dt'] }} UTC+0",
-        theme: 'translucent'
-    });
     tippy('#userinfo-last_seen', {
         content: "{{ user['latest_activity_dt'] }} UTC+0",
         theme: 'translucent'
