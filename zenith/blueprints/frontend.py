@@ -313,20 +313,21 @@ async def profile(u:str=None, mode:int=None):
     u['register_dt'] = datetime.datetime.fromtimestamp(float(u['creation_time']))
     u['latest_activity_dt'] = datetime.datetime.fromtimestamp(float(u['latest_activity']))
     s['playtime'] = datetime.timedelta(seconds=s['playtime'])
-
+    
+    u['userpage_content'] = None
+    """
     #Convert markdown to html
     if u['userpage_content'] != None:
         u['userpage_content'] = md(u['userpage_content'])
         u['userpage_content'] = u['userpage_content'].replace("\n", "<br>")
-
     #Fetch user's customs
     customs = await app.state.services.database.fetch_one(
         "SELECT website, discord_tag, interests, location "
         "FROM customs WHERE userid=:uid",
         {"uid": u['id']}
     )
-
-    return await render_template('profile/home.html', user=u, mode=mode, stats=s, cur_page="home", customs=customs)
+    """
+    return await render_template('profile/home.html', user=u, mode=mode, stats=s, cur_page="home", customs=None)#, customs=customs)
 
 
 """
