@@ -454,7 +454,12 @@
                 theme: {
                     mode: 'dark',
                 },
-
+                markers: {
+                    size: 0,
+                    fillColor: 'hsl(var(--main), 50%, 50%)',
+                    strokeWidth: 0,
+                    hover: { size: 7 }
+                },
                 // Data
                 series: [{
                 name: 'PP',
@@ -480,4 +485,10 @@
         }
     })
 </script>
+<style>
+    .apexcharts-xcrosshairs,
+    .apexcharts-ycrosshairs {
+        display: none;
+    }
+</style>
 {% endblock %}

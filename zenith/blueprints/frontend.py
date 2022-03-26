@@ -313,7 +313,7 @@ async def profile(u:str=None, mode:int=None):
     u['register_dt'] = datetime.datetime.fromtimestamp(float(u['creation_time']))
     u['latest_activity_dt'] = datetime.datetime.fromtimestamp(float(u['latest_activity']))
     s['playtime'] = datetime.timedelta(seconds=s['playtime'])
-    
+
     u['userpage_content'] = None
     """
     #Convert markdown to html
