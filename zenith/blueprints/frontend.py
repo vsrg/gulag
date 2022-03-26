@@ -258,6 +258,9 @@ async def register_post():
 async def leaderboard(mode='std', sort='pp', mods='vn'):
     return await render_template('leaderboard.html', mode=mode, sort=sort, mods=mods)
 
+#!####################!#
+#!     USER PAGE      !#
+#!####################!#
 @frontend.route('/u/<u>')
 @frontend.route('/u/<u>/home')
 @frontend.route('/u/<u>/<mode>')
@@ -306,6 +309,7 @@ async def profile(u:str=None, mode:int=None):
     s['acc'] = round(s['acc'], 2)
     s['rscore'] = "{:,}".format(s['rscore'])
     s['tscore'] = "{:,}".format(s['tscore'])
+    #TODO: Change to "since the beniginging" if userid < 100
     u['register_dt'] = datetime.datetime.fromtimestamp(float(u['creation_time']))
     u['latest_activity_dt'] = datetime.datetime.fromtimestamp(float(u['latest_activity']))
     s['playtime'] = datetime.timedelta(seconds=s['playtime'])
@@ -324,6 +328,44 @@ async def profile(u:str=None, mode:int=None):
 
     return await render_template('profile/home.html', user=u, mode=mode, stats=s, cur_page="home", customs=customs)
 
+
+"""
+@frontend.route('/u/<id>/<mode>/favorites')
+async def profile_favorites(id:int, mode:int):
+        #* User not specified
+    if id == None:
+        return await utils.flash_tohome('error', 'You must specify username or id')
+    #* Update privs
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+
+    #* Get user
+    u = await app.state.services.database.fetch_one(
+        "SELECT id, name, priv, country, creation_time, "
+        "latest_activity, preferred_mode "
+        "FROM users WHERE id=:u or name=:u",
+        {"u": id}
+    )
+    if not u:
+        return await utils.flash_tohome("error", "User not found") #switch to user specific 404
+    u = dict(u)
+    if u['id'] == 1:
+        return flash_tohome('error', "Due to stuff getting absolute autism, viewing Ż Bot's profile is disabled.")
+    #! Get author priv and check if target is restricted
+    is_staff = 'authenticated' in session and session['user_data']['is_staff']
+    if not (u['priv'] & Privileges.NORMAL or is_staff):
+        return (await render_template('errors/404.html'), 404)
+
+    u['customisation'] = utils.has_profile_customizations(u['id'])
+
+    #Fetch user's customs
+    customs = await app.state.services.database.fetch_one(
+        "SELECT website, discord_tag, interests, location "
+        "FROM customs WHERE userid=:uid",
+        {"uid": u['id']}
+    )
+    return await render_template('profile/favorites.html', user=u, cur_page='favorites', customs=customs, mode=mode)
+"""
 
 #! profile customization
 BANNERS_PATH = Path.cwd() / 'zenith/.data/banners'

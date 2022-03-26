@@ -6,6 +6,9 @@
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
 </script>
+<!-- Apexcharts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.33.2/apexcharts.min.js" integrity="sha512-iBEfFld2z1SAXCPmgoA40VQtqGP0cEJw4fy+t3ARW30uEfzf8hyrmm4mc5qdth3wZRPdKTv/auk5WH52klRVDg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.33.2/apexcharts.min.css" integrity="sha512-72LrFm5Wau6YFp7GGd7+qQJYkzRKj5UMQZ4aFuEo3WcRzO0xyAkVjK3NEw8wXjEsEG/skqvXKR5+VgOuzuqPtA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 {% endblock %}
 
 {% block content %}
@@ -59,9 +62,70 @@
                 </div>
             </div>
             <!-- Graph -->
-            <div class="flex h-24 sm:h-full items-center justify-center my-3 text-center">
-                <p class="">We're currently collecting rank data, graph will be there soon! :D</p>
+            <div class="flex h-24 sm:h-full items-center justify-center my-3 text-center" id="pp-graph">
             </div>
+            <script>
+                days_arr = []
+                pp_arr = []
+                axios.get('https://{{ domain() }}/wapi/get_pp_history?u={{ user["id"] }}&m={{ mode }}')
+                .then((r) => {
+                    console.log(r.data)
+                    if (r.data.success === false) {
+                        console.log('h')
+                    } else {
+                        console.log('ż')
+                    }
+
+                    for (el of r.data.data) {
+                        days_arr.push(`${el.date}`)
+                        pp_arr.push(el.pp)
+                    }
+                    // Graph creation
+                    var options = {
+                        // Settings and styling
+                        chart: {
+                        type: 'line',
+                        height: 170,
+                        zoom: {
+                            enabled: false
+                        },
+                        toolbar: {
+                            show: false
+                        },
+                        background: 'rgba(0,0,0,0)'
+                        },
+                        stroke: { curve: 'smooth' },
+                        legend: { show: false },
+                        colors: ['hsl(var(--main), 60%, 60%)'],
+                        grid: { show: false },
+                        theme: {
+                            mode: 'dark',
+                        },
+
+                        // Data
+                        series: [{
+                        name: 'PP',
+                        data: pp_arr
+                        }],
+                        xaxis: {
+                            categories: days_arr,
+                            labels: { show: false },
+                            axisBorder: {
+                                show: false
+                            },
+                            axisTicks: {
+                                show: false,
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        },
+                        yaxis: { labels: { show: false }},
+                    }
+                    var chart = new ApexCharts(document.querySelector("#pp-graph"), options);
+                    chart.render();
+                })
+            </script>
         </div>
         <div class="hidden sm:flex mx-2 bg-hsl-10 h-56 my-auto w-0.5"></div>
         <!-- Stats -->

@@ -7,6 +7,7 @@ import datetime
 import json
 import databases
 import service_identity
+import timeago
 
 import app.state.services
 from app.constants.privileges import Privileges
@@ -319,3 +320,101 @@ async def update_aboutme():
         {"data": d['data'], "uid": session['user_data']['id']}
     )
     return {"success": True}
+
+@api.route('/bmap_search')
+async def bmap_search():
+    q = request.args.get('q', type=str, default=None)
+    mode = request.args.get('mode', type=int, default=None)
+    status = request.args.get('status', type=int, default=None)
+    offset = request.args.get('o', type=int, default=0)
+
+    # Define search query args and string for later usage
+    search_q = []
+    search_q_args = {}
+    search_q_args['offset'] = offset
+
+    # Check mode, append to query if present
+    if mode:
+        if mode < 0 or mode > 3:
+            return {"success": False, "msg": "Mode must be in range 0-3"}
+        search_q.append("mode=:mode")
+        search_q_args['mode'] = mode
+
+    # Check status, append to query if present
+    if status:
+        if status < 0 or status > 5:
+            return {"success": False, "msg": "Status must be in range 0-5"}
+        search_q.append("status=:status")
+        search_q_args['status'] = status
+
+    # Simple Search Engine xD. Dear god i need to figure out how to use match aginst
+    if q:
+        search_q.append("creator LIKE :q OR title LIKE :q OR artist LIKE :q OR version LIKE :q")
+        search_q_args['q'] = q
+
+    search_q_new = ""
+    i = 1
+    #Parse qury args
+    for el in search_q:
+        if i != len(search_q):
+            search_q_new += el + ' AND '
+        else:
+            search_q_new += el
+        i += 1
+
+    res = await app.state.services.database.fetch_all(
+        "SELECT DISTINCT(set_id), status, artist, creator, title "
+        f"FROM maps WHERE {search_q_new} "
+        "ORDER BY last_update DESC LIMIT 30 OFFSET :offset",
+        search_q_args
+    )
+    print(res)
+    print("\n\nSELECT DISTINCT(set_id), status, artist, creator, title ")
+    print(f"FROM maps WHERE {search_q_new} ")
+    print("ORDER BY last_update DESC LIMIT 30 OFFSET :offset")
+    print(search_q_args, "\n\n")
+
+    return {"success": True, "result": res}
+
+@api.route('/get_pp_history')
+async def get_pp_history():
+    userid = request.args.get('u', type=int)
+    mode = request.args.get('m', type=int)
+
+    if not mode and mode not in (0,1,2,3,4,5,6,8):
+        return {"success": False, "msg": "'m' argument (mode) must be in range 0-8 excluding 7."}
+
+    if not userid:
+        return {"success": False, "msg": "You must specify 'u' arg."}
+    u = await app.state.services.database.fetch_val(
+        "SELECT 1 FROM users WHERE id = :uid",
+        {"uid": userid}
+    )
+    if not u:
+        return {"success": False, "msg": "User not found"}
+    else:
+        # Get current time and substract one day to get yesterday midnight +1s
+        now = (datetime.datetime.utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d 00:00:01")
+        # Fetch data from db
+        data = await app.state.services.database.fetch_all(
+            "SELECT pp, DATE_FORMAT(date,'%Y-%m-%d') AS `date` "
+            "FROM pp_graph_data "
+            "WHERE mode=:m AND id=:uid AND subdate(current_date, 1) "
+            "AND date < :today "
+            "ORDER BY date DESC LIMIT 90",
+            {"m": mode, "uid": userid, 'today': now}
+        )
+        #Delete unusued vars
+        del(now, userid, mode)
+        if len(data) < 2:
+            return{"success": False, 'msg': "Not enough data, graph is aviable after 3 days from getting at least 1 pp"}
+
+        # Convert result into dicts inside array and and convert dt obj to timeago
+        now = datetime.datetime.utcnow()
+        for i in range(len(data)):
+            data[i] = dict(data[i])
+            data[i]['date'] = timeago.format(data[i]['date'], now)
+
+        #Reverse array
+        data = data[::-1]
+    return {"success": True, 'data': data}
