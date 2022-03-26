@@ -71,59 +71,59 @@
                 .then((r) => {
                     console.log(r.data)
                     if (r.data.success === false) {
-                        console.log('h')
+                        document.getElementById('pp-graph').innerHTML = `
+                        <p>${r.data.msg}</p>
+                        `
                     } else {
-                        console.log('ż')
-                    }
-
-                    for (el of r.data.data) {
-                        days_arr.push(`${el.date}`)
-                        pp_arr.push(el.pp)
-                    }
-                    // Graph creation
-                    var options = {
-                        // Settings and styling
-                        chart: {
-                        type: 'line',
-                        height: 170,
-                        zoom: {
-                            enabled: false
-                        },
-                        toolbar: {
-                            show: false
-                        },
-                        background: 'rgba(0,0,0,0)'
-                        },
-                        stroke: { curve: 'smooth' },
-                        legend: { show: false },
-                        colors: ['hsl(var(--main), 60%, 60%)'],
-                        grid: { show: false },
-                        theme: {
-                            mode: 'dark',
-                        },
-
-                        // Data
-                        series: [{
-                        name: 'PP',
-                        data: pp_arr
-                        }],
-                        xaxis: {
-                            categories: days_arr,
-                            labels: { show: false },
-                            axisBorder: {
+                        for (el of r.data.data) {
+                            days_arr.push(`${el.date}`)
+                            pp_arr.push(el.pp)
+                        }
+                        // Graph creation
+                        var options = {
+                            // Settings and styling
+                            chart: {
+                            type: 'line',
+                            height: 170,
+                            zoom: {
+                                enabled: false
+                            },
+                            toolbar: {
                                 show: false
                             },
-                            axisTicks: {
-                                show: false,
+                            background: 'rgba(0,0,0,0)'
                             },
-                            tooltip: {
-                                enabled: false
-                            }
-                        },
-                        yaxis: { labels: { show: false }},
+                            stroke: { curve: 'smooth', width: 3 },
+                            legend: { show: false },
+                            colors: ['hsl(var(--main), 60%, 60%)'],
+                            grid: { show: false },
+                            theme: {
+                                mode: 'dark',
+                            },
+
+                            // Data
+                            series: [{
+                            name: 'PP',
+                            data: pp_arr
+                            }],
+                            xaxis: {
+                                categories: days_arr,
+                                labels: { show: false },
+                                axisBorder: {
+                                    show: false
+                                },
+                                axisTicks: {
+                                    show: false,
+                                },
+                                tooltip: {
+                                    enabled: false
+                                }
+                            },
+                            yaxis: { labels: { show: false }},
+                        }
+                        var chart = new ApexCharts(document.querySelector("#pp-graph"), options);
+                        chart.render();
                     }
-                    var chart = new ApexCharts(document.querySelector("#pp-graph"), options);
-                    chart.render();
                 })
             </script>
         </div>
