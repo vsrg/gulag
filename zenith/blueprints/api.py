@@ -45,10 +45,10 @@ async def get_records():
         if i == 7:
             continue
         record = await app.state.services.database.fetch_one(
-            f'SELECT s.id, s.pp, s.userid, m.set_id, u.name '
-            f'FROM scores s '
-            f'LEFT JOIN users u ON s.userid = u.id '
-            f'LEFT JOIN maps m ON s.map_md5 = m.md5 '
+            'SELECT s.id, s.pp, s.userid, m.set_id, u.name '
+            'FROM scores s '
+            'LEFT JOIN users u ON s.userid = u.id '
+            'LEFT JOIN maps m ON s.map_md5 = m.md5 '
             f'WHERE s.mode = {i} AND m.status=2 AND u.priv & 1 '
              'AND grade!="f"'
              'ORDER BY pp DESC LIMIT 1;'
@@ -361,18 +361,24 @@ async def bmap_search():
         else:
             search_q_new += el
         i += 1
+    if len(search_q_new) > 1:
+        search_q_new = "WHERE " + search_q_new
 
+    print("SELECT DISTINCT(set_id), status, artist, creator, title "
+         f"FROM maps {search_q_new} "
+          "ORDER BY last_update DESC LIMIT 30 OFFSET :offset"
+    )
     res = await app.state.services.database.fetch_all(
         "SELECT DISTINCT(set_id), status, artist, creator, title "
-        f"FROM maps WHERE {search_q_new} "
+       f"FROM maps {search_q_new} "
         "ORDER BY last_update DESC LIMIT 30 OFFSET :offset",
         search_q_args
     )
-    print(res)
-    print("\n\nSELECT DISTINCT(set_id), status, artist, creator, title ")
-    print(f"FROM maps WHERE {search_q_new} ")
-    print("ORDER BY last_update DESC LIMIT 30 OFFSET :offset")
-    print(search_q_args, "\n\n")
+
+    if res is None:
+        return {"success": False, "msg": "No results found."}
+    else:
+        res = [dict(row) for row in res]
 
     return {"success": True, "result": res}
 
@@ -407,7 +413,7 @@ async def get_pp_history():
         #Delete unusued vars
         del(now, userid, mode)
         if len(data) < 2:
-            return{"success": False, 'msg': "Not enough data, graph is aviable after 3 days from getting at least 1 pp"}
+            return{"success": False, 'msg': "Not enough data, graph is available after 3 days from getting at least 1 pp"}
 
         # Convert result into dicts inside array and and convert dt obj to timeago
         now = datetime.datetime.utcnow()
@@ -417,4 +423,5 @@ async def get_pp_history():
 
         #Reverse array
         data = data[::-1]
+
     return {"success": True, 'data': data}

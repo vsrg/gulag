@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Beatmap Search{% endblock %}
+
+{% block header %}
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+{% endblock %}
+
+
+{% block content %}
+<div class="flex flex-col w-full md:w-11/12 max-w-screen-xl md:mx-auto my-12">
+    <div class="h-auto md:h-80"
+        style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.65),
+        hsl(var(--main), 10%, 10%, 0.65)), url(/static/images/leaderb.png);
+        background-position: center; background-size: cover;"></div>
+    <div class="flex flex-col">
+</div>
+{% endblock %}
+
+{% block bottom %}
+<style>
+  /* Change Autocomplete styles in Chrome*/
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    box-shadow: 0 0 0px 1000px rgba(0,0,0,0) inset;
+    -webkit-text-fill-color: white;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(0,0,0,0) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+</style>
+<script>
+
+</script>
+{% endblock %}

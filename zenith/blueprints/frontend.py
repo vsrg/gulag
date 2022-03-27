@@ -2,29 +2,31 @@
 
 __all__ = ()
 
+import bcrypt
 import datetime
 import hashlib
+import json
 import os
 from re import S
 import time
+
+from cmyui.logging import Ansi, log
 from markdown import markdown as md
 from PIL import Image
+from pathlib import Path
+from quart import (Blueprint, redirect, render_template, request, send_file, session)
 
-import bcrypt
-from sqlalchemy import null
+import app.state
+from app.state import website as zglob
+from app.constants import gamemodes
+from app.constants.mods import Mods
 from app.constants.privileges import Privileges
 from app.objects.player import Player
-from app.state import website as zglob
-import app.state
-from cmyui.logging import Ansi, log
-from pathlib import Path
-from quart import (Blueprint, redirect, render_template, request, send_file,
-                   session)
+
 from zenith import zconfig
 from zenith.objects import regexes, utils
 from zenith.objects.utils import flash, flash_tohome, validate_password
-from app.constants import gamemodes
-from app.constants.mods import Mods
+
 frontend = Blueprint('frontend', __name__)
 
 @frontend.route('/')
@@ -587,6 +589,7 @@ async def settings_avatar_post():
 
 @frontend.route('/settings/customization/banner_bg', methods=['POST'])
 async def settings_custom_post():
+
     #* Update privs
     if 'authenticated' in session:
         await utils.updateSession(session)
@@ -671,3 +674,11 @@ async def rules():
 @frontend.route('/discord')
 async def redirect_discord():
     return redirect(zconfig.discord_server)
+
+@frontend.route('/beatmaps')
+async def bmap_search():
+    if ('authenticated' in session and
+        Privileges.DEVELOPER not in Privileges(session['user_data']['priv'])):
+        return await render_template('errors/404.html')
+
+    return await render_template('beatmaps.html')
