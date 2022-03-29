@@ -2,7 +2,7 @@
 
 __all__ = ()
 
-from curses.ascii import isdigit
+import bleach
 import datetime
 import json
 import databases
@@ -209,6 +209,9 @@ async def update_user_discord():
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
 
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
+
     user = await app.state.services.database.fetch_val(
         "SELECT 1 FROM customs WHERE userid=:id",
         {"id": session['user_data']['id']}
@@ -235,6 +238,8 @@ async def update_user_location():
 
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
 
     user = await app.state.services.database.fetch_val(
         "SELECT 1 FROM customs WHERE userid=:id",
@@ -263,6 +268,9 @@ async def update_user_interests():
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
 
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
+
     user = await app.state.services.database.fetch_val(
         "SELECT 1 FROM customs WHERE userid=:id",
         {"id": session['user_data']['id']}
@@ -290,6 +298,9 @@ async def update_user_website():
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
 
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
+
     user = await app.state.services.database.fetch_val(
         "SELECT 1 FROM customs WHERE userid=:id",
         {"id": session['user_data']['id']}
@@ -315,6 +326,9 @@ async def update_aboutme():
 
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
+
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
     await app.state.services.database.execute(
         "UPDATE users SET userpage_content=:data WHERE id=:uid",
         {"data": d['data'], "uid": session['user_data']['id']}
@@ -323,6 +337,7 @@ async def update_aboutme():
 
 @api.route('/bmap_search', methods=['POST'])
 async def bmap_search():
+    start = datetime.datetime.utcnow()
     # Get data from request body
     d = await request.get_data()
     if d:
@@ -406,16 +421,8 @@ async def bmap_search():
             "SELECT COUNT(userid) FROM favourites WHERE setid=:set_id",
             {"set_id": el['set_id']})
         el['diffs'] = diffs
-
+    print("Exec Time", datetime.datetime.utcnow() - start)
     return {"success": True, 'result': res}
-
-
-
-
-
-
-
-
 
 
 @api.route('/get_pp_history')
