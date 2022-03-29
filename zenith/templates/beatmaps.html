@@ -11,10 +11,10 @@
 
 {% block content %}
 <div class="flex flex-col w-full md:w-10/12 max-w-screen-xl md:mx-auto my-12">
-    <div class="py-24"
+    <div class="py-24" id="banner"
         style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.65),
         hsl(var(--main), 10%, 10%, 0.65)), url(/static/images/leaderb.png);
-        background-position: center; background-size: cover;">
+        background-position: center; background-size: cover; background-repeat: no-repeat !important;">
         <div class="flex flex-col justify-center w-11/12 md:w-10/12 mx-auto">
             <div class="relative flex flex-row">
                 <input  class="w-full mx-auto outline-none py-3 px-4 text-gray-100 bg-hsl-10
@@ -242,10 +242,10 @@ function search(mode, status, frozen, offset) {
             for (diff_obj of el.diffs) {
                 // round diff_obj.diff to 2 decimal places
                 diffblock += `
-                <div class="flex flex-row items-center justify-center rounded-full pl-1.5 pr-0.5 py-1.5 mx-0.5 group
+                <div class="flex flex-row items-center justify-center rounded-full px-2 py-1.5 mx-0.5 group
                     transision duration-200 hover:pl-2 hover:pr-2.5"
                     style="background-color: ${diff_obj.diff_color}; color: ${getContrastYIQ(diff_obj.diff_color)};">
-                    <i class="mode-icon ${mode2str(diff_obj.mode)} mr-1.5"></i>
+                    <i class="mode-icon ${mode2str(diff_obj.mode)} group-hover:mr-1.5"></i>
                     <span class="hidden group-hover:flex z-30">${Math.round(diff_obj.diff * 100) / 100}</span>
                 </div>
                 `
@@ -254,6 +254,7 @@ function search(mode, status, frozen, offset) {
             status = status2str(el.status)
             document.getElementById("results").innerHTML += `
             <a class="col-span-1 row-span-1 h-32 bg-hsl-30 rounded-xl"
+                id="${el.set_id}"
                 href="https://{{ domain() }}/s/${el.set_id}"
                 style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.66), hsl(var(--main), 10%, 10%, 0.66)),
                     url(https://assets.ppy.sh/beatmaps/${el.set_id}/covers/cover.jpg);
@@ -284,7 +285,13 @@ function search(mode, status, frozen, offset) {
         if (r.data.result.length < 30 && document.getElementById("load-more")) {
             document.getElementById("load-more").remove();
         }
-
+        // Get id of first element in results and set it as banner background
+        if (document.getElementById("results").innerHTML.length > 0) {
+            document.getElementById("banner").style.background = `
+            linear-gradient(hsl(var(--main), 10%, 10%, 0.66), hsl(var(--main), 10%, 10%, 0.66)),
+            url(https://assets.ppy.sh/beatmaps/${document.getElementById("results").firstElementChild.id}/covers/fullsize.jpg)
+            no-repeat center`
+        }
     })
 }
 
