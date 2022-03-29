@@ -186,7 +186,7 @@ async def search_users():
             'WHERE priv & 1 AND `name` LIKE :q '
             'AND id!=1 '
             'LIMIT 5',
-            {"q": q.join("%%")}
+            {"q": q + "%"}
         )
 
     new_res = []
@@ -321,66 +321,102 @@ async def update_aboutme():
     )
     return {"success": True}
 
-@api.route('/bmap_search')
+@api.route('/bmap_search', methods=['POST'])
 async def bmap_search():
-    q = request.args.get('q', type=str, default=None)
-    mode = request.args.get('mode', type=int, default=None)
-    status = request.args.get('status', type=int, default=None)
-    offset = request.args.get('o', type=int, default=0)
-
-    # Define search query args and string for later usage
-    search_q = []
-    search_q_args = {}
-    search_q_args['offset'] = offset
-
-    # Check mode, append to query if present
-    if mode:
-        if mode < 0 or mode > 3:
-            return {"success": False, "msg": "Mode must be in range 0-3"}
-        search_q.append("mode=:mode")
-        search_q_args['mode'] = mode
-
-    # Check status, append to query if present
-    if status:
-        if status < 0 or status > 5:
-            return {"success": False, "msg": "Status must be in range 0-5"}
-        search_q.append("status=:status")
-        search_q_args['status'] = status
-
-    # Simple Search Engine xD. Dear god i need to figure out how to use match aginst
-    if q:
-        search_q.append("creator LIKE :q OR title LIKE :q OR artist LIKE :q OR version LIKE :q")
-        search_q_args['q'] = q
-
-    search_q_new = ""
-    i = 1
-    #Parse qury args
-    for el in search_q:
-        if i != len(search_q):
-            search_q_new += el + ' AND '
-        else:
-            search_q_new += el
-        i += 1
-    if len(search_q_new) > 1:
-        search_q_new = "WHERE " + search_q_new
-
-    print("SELECT DISTINCT(set_id), status, artist, creator, title "
-         f"FROM maps {search_q_new} "
-          "ORDER BY last_update DESC LIMIT 30 OFFSET :offset"
-    )
-    res = await app.state.services.database.fetch_all(
-        "SELECT DISTINCT(set_id), status, artist, creator, title "
-       f"FROM maps {search_q_new} "
-        "ORDER BY last_update DESC LIMIT 30 OFFSET :offset",
-        search_q_args
-    )
-
-    if res is None:
-        return {"success": False, "msg": "No results found."}
+    # Get data from request body
+    d = await request.get_data()
+    if d:
+        d = json.loads(d.decode('utf-8'))
     else:
-        res = [dict(row) for row in res]
+        return {'success': False, 'msg': 'No data received.'}
 
-    return {"success": True, "result": res}
+    # Create arg list for query
+    arg_list = []
+    args_to_query = {}
+
+    # Checks for mode
+    if 'mode' in d:
+        if d['mode'] not in (None, 'null'):
+            arg_list.append("`mode`=':mode'")
+            args_to_query['mode'] = d['mode']
+
+    # Checks for status
+    if 'status' in d:
+        status = d['status']
+        if status in (None, 'null'):
+            pass
+        elif status == '0':
+            arg_list.append('(status=2 OR status=3)')
+        elif status == '1':
+            arg_list.append('status=5')
+        elif status == '2':
+            arg_list.append('status=4')
+        elif status == '3':
+            arg_list.append('(status=0 OR status=1')
+    # Checks for search
+    if 'query' in d:
+        query = d['query']
+        if query not in (None, 'null'):
+            arg_list.append('(artist LIKE :query OR creator LIKE :query OR version LIKE :query OR title LIKE :query)')
+            args_to_query['query'] = '%' + query.replace(" ", "%") + '%'
+
+    # Checks for frozen
+    if 'frozen' in d:
+        if d['frozen'] not in (None, 'null'):
+            arg_list.append('frozen=1')
+
+    # Checks for offset
+    if 'offset' in d:
+        if d['offset'] in (None, 'null'):
+            args_to_query['offset'] = 0
+        else:
+            args_to_query['offset'] = d['offset']
+    else:
+        args_to_query['offset'] = 0
+
+    # Convert arg_list to string, add 'AND' between every element
+    arg_list = ' AND '.join(arg_list)
+    if arg_list != '':
+        arg_list = 'WHERE ' + arg_list
+
+    # Fetch maps from database, don't allow duplicates
+    res = await app.state.services.database.fetch_all(
+        "SELECT DISTINCT(set_id), artist, creator, title, status "
+        f"FROM maps {arg_list} "
+        "ORDER BY last_update DESC LIMIT 30 OFFSET :offset",
+        args_to_query)
+
+    # Convert elements of res to dicts
+    res = [dict(row) for row in res]
+
+    # Loop through all maps in results
+    for el in res:
+        diffs = await app.state.services.database.fetch_all(
+            "SELECT mode, diff FROM maps WHERE set_id=:set_id ORDER BY diff ASC LIMIT 14",
+            {"set_id": el['set_id']})
+        # Convert elements of diffs to dicts
+        diffs = [dict(row) for row in diffs]
+
+        # Get diff color with spectra
+        for diff in diffs:
+            diff['diff_color'] = getDiffColor(diff['diff'])
+
+        # Fetch fav count
+        el['fav_count'] = await app.state.services.database.fetch_val(
+            "SELECT COUNT(userid) FROM favourites WHERE setid=:set_id",
+            {"set_id": el['set_id']})
+        el['diffs'] = diffs
+
+    return {"success": True, 'result': res}
+
+
+
+
+
+
+
+
+
 
 @api.route('/get_pp_history')
 async def get_pp_history():
