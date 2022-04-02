@@ -245,7 +245,7 @@ function search(mode, status, frozen, offset) {
                 <div class="flex flex-row items-center justify-center rounded-full px-2 py-1.5 mx-0.5 group
                     transision duration-200 hover:pl-2 hover:pr-2.5"
                     style="background-color: ${diff_obj.diff_color}; color: ${getContrastYIQ(diff_obj.diff_color)};">
-                    <i class="mode-icon ${mode2str(diff_obj.mode)} group-hover:mr-1.5"></i>
+                    <i class="mode-icon ${mode2str(diff_obj.mode)} group-hover:mr-1.5" style="font-size: 18px;"></i>
                     <span class="hidden group-hover:flex z-30">${Math.round(diff_obj.diff * 100) / 100}</span>
                 </div>
                 `
