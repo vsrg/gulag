@@ -490,12 +490,12 @@ function updateSearch(mode, status, frozen, offset) {
                     </button>
                 </div>`
         }
-    }, 1500);
+    }, 1000);
 }
 
 
 changeMode(null)
-changeStatus(null)
+changeStatus(0)
 changeFrozen(null)
 
 // Load more when user reaches bottom of page
@@ -506,7 +506,7 @@ function loadMore() {
     setTimeout(function() {
         document.getElementById("load-more").disabled = false;
         document.getElementById('load-more_btn').innerHTML = 'Load More';
-    }, 1000);
+    }, 400);
     offset += 30;
     search(mode, status, frozen, offset);
 }
