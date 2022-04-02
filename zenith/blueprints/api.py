@@ -405,6 +405,7 @@ async def bmap_search():
     res = [dict(row) for row in res]
 
     # Loop through all maps in results
+    # Shitcoding at its finest
     for el in res:
         diffs = await app.state.services.database.fetch_all(
             "SELECT mode, diff FROM maps WHERE set_id=:set_id ORDER BY diff ASC LIMIT 14",
