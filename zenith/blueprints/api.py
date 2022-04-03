@@ -469,3 +469,27 @@ async def get_pp_history():
         data = data[::-1]
 
     return {"success": True, 'data': data}
+
+# Topg Postback
+@api.route('/postback.php')
+async def topg_postback(methods=['GET', 'POST']):
+    if request.headers['cf-connecting-ip'] != "192.99.101.31": # Topg IP
+        log(f'VOTING POSTBACK: Access denied for {request.headers["cf-connecting-ip"]}')
+        return {"success": False, "msg": "Only TOPG server listing is allowed to use this route."}
+
+    p_name = request.args.get('p_resp', default=None, type=str)
+    p_ip = request.args.get('ip', default=None, type=str)
+
+    p_id = await  app.state.services.database.fetch_val(
+        "SELECT id FROM users WHERE name=:name",
+        {"name": p_name} )
+    if not p_id:
+        log(f"VOTING POSTBACK: Vote from {p_ip}, user does not exist in database")
+        return {"success": False, "msg": "User not found"}
+    else:
+        await app.state.services.database.execute(
+            "INSERT INTO votes (userid, ip) VALUES (:id, :ip)",
+            {"ip": p_ip, "id": p_id}
+        )
+        log(f"VOTING POSTBACK: Vote from {p_name} with IP {p_ip}")
+        return {"success": True}
