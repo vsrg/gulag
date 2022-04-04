@@ -419,7 +419,7 @@ DIRECT_SET_INFO_FMTSTR = (
 
 DIRECT_MAP_INFO_FMTSTR = (
     "[{DifficultyRating:.2f}⭐] {DiffName} "
-    "{{cs: {CS} / od: {OD} / ar: {AR} / hp: {HP}}}@{Mode}"
+    "{{cs: {CS} / ar: {AR} }}@{Mode}"
 )
 
 
@@ -434,7 +434,7 @@ async def osuSearchHandler(
     if USING_CHIMU:
         search_url = f"{app.settings.MIRROR_URL}/search"
     else:
-        search_url = f"{app.settings.MIRROR_URL}/api/search"
+        search_url = f"{app.settings.MIRROR_URL}search"
 
     params: dict[str, object] = {"amount": 100, "offset": page_num * 100}
 
@@ -1691,12 +1691,12 @@ async def get_osz(
         map_set_id = map_set_id[:-1]
 
     if USING_CHIMU:
-        query_str = f"download/{map_set_id}?n={int(not no_video)}"
+        query_str = f"{app.settings.MIRROR_URL}/download/{map_set_id}?n={int(not no_video)}"
     else:
-        query_str = f"d/{map_set_id}"
+        query_str = f"{app.settings.MIRROR_URL}d/{map_set_id}"
 
     return RedirectResponse(
-        url=f"{app.settings.MIRROR_URL}/{query_str}",
+        url=query_str,
         status_code=status.HTTP_301_MOVED_PERMANENTLY,
     )
 
