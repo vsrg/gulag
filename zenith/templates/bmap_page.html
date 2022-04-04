@@ -160,8 +160,9 @@
         </div>
         <div class="flex flex-col mx-8 justify-between">
             <div class="flex flex-col items-center my-20">
-                <span class="text-3xl sm:text-4xl lg:text-5xl font-light">{{ m['title'] }}</span>
-                <span class="text-2xl sm:text-3xl lg:text-3xl font-light -mt-1.5 lg:-mt-0">by {{ m['artist'] }}</span>
+                <span class="text-3xl sm:text-4xl lg:text-5xl font-light text-center">{{ m['title'] }}</span>
+                <span class="text-2xl sm:text-3xl lg:text-3xl font-light -mt-1.5 lg:-mt-0
+                    text-center">by {{ m['artist'] }}</span>
             </div>
         </div>
     </div>
@@ -259,47 +260,6 @@
                         </tr>
                     </thead>
                     <tbody id="leaderboard_body" class="text-sm">
-                        <tr class="truncate bg-hsl-15 table-el group">
-                            <td class="px-3 bg-hsl-10"></td>
-                            <td class="pr-2 pl-3 font-bold text-center rounded-l-lg">
-                                #1
-                            </td>
-                            <td class="py-1 text-left min-w-fit">
-                                <a href="https://{{ domain() }}/u/4"
-                                    class="flex items-center group transition duration-200">
-                                    <img class="h-8 w-8 mr-2 rounded" src="https://a.{{ domain() }}/4"
-                                        alt="/static/images/avatar_notwork.png">
-                                    <img src="/static/images/flags/PL.png" class="w-7 mr-2">
-                                    <span class="text-sm group-hover:text-hsl-80 w-32">def750</span>
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                <span class="text-hsl-90 text-lg font-bold text-yellow-400">S</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="text-hsl-90">999,999</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="text-hsl-90">727</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="text-hsl-90">99,99%</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="text-hsl-90">100%</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="text-hsl-90">2 months ago</span>
-                            </td>
-                            <td class="text-center rounded-r-lg">
-                                <span class="text-hsl-90">+DT</span>
-                            </td>
-                            <td class="bg-hsl-10 text-white text-base lg:invisible group-hover:visible
-                                pl-4 pr-1 h-full hover:cursor-pointer"
-                                onclick="location.href='https://{{ domain() }}/score/22222'">
-                                <i class="fas fa-external-link-alt view-score-link"></i>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -384,7 +344,8 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
                         </a>
                     </td>
                     <td class="text-center">
-                        <span class="text-hsl-90 text-lg font-bold text-yellow-400">${s.grade}</span>
+                        <span class="text-lg font-bold
+                            ${rank_colors(s.grade)}">${grade_normal(s.grade)}</span>
                     </td>
                     <td class="text-center">
                         <span class="text-hsl-90">${addCommas(s.score)}</span>
@@ -507,6 +468,39 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
         content: "This feature is not available yet",
         theme: 'translucent'
     });
+
+    function rank_colors(rank) {
+        switch (rank) {
+            case 'XH':
+                return 'text-gray-300'
+            case 'X':
+                return 'text-yellow-400'
+            case 'SH':
+                return 'text-gray-300'
+            case 'S':
+                return 'text-yellow-400'
+            case 'A':
+                return 'text-green-500'
+            case 'B':
+                return 'text-blue-500'
+            case 'C':
+                return 'text-purple-400'
+            case 'D':
+                return 'text-red-400'
+            case 'F':
+                return 'text-red-400'
+    }}
+    function grade_normal(rank) {
+        switch (rank) {
+            case 'XH':
+                return 'SS'
+            case 'X':
+                return 'SS'
+            case 'SH':
+                return 'S'
+            default:
+                return rank
+    }}
 
     loadMaps("{{ m['set_id'] }}")
 </script>
