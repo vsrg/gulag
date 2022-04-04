@@ -2,6 +2,7 @@
 
 __all__ = ()
 
+from curses.ascii import isdigit
 import bcrypt
 import datetime
 import hashlib
@@ -677,8 +678,60 @@ async def redirect_discord():
 
 @frontend.route('/beatmaps')
 async def bmap_search():
-    if ('authenticated' in session and
-        Privileges.DEVELOPER not in Privileges(session['user_data']['priv'])):
-        return await render_template('errors/404.html')
+    # Priv update
+    if 'authenticated' in session:
+        await utils.updateSession(session)
 
     return await render_template('beatmaps.html')
+
+@frontend.route('/s/<set_id>')
+async def beatmap_set_redirect(set_id:int=None):
+    """Redirect to beatmap set page"""
+    # Priv update
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+
+    # Validate set_id
+    if set_id == None:
+        return flash_tohome('error', 'Invalid beatmap set ID!')
+
+    # Fetch map from set
+    map_id = await app.state.services.database.fetch_val(
+        'SELECT id FROM maps WHERE set_id=:set_id',
+        {'set_id': set_id}
+    )
+    if map_id == None:
+        return await render_template('errors/404.html')
+    else:
+        return redirect(f'/b/{map_id}')
+
+@frontend.route('/b/<map_id>')
+async def beatmap_page(map_id:int=None):
+    """Redirect to beatmap page"""
+    # Priv update
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+
+    # Validate map_id
+    if map_id == None:
+        return await render_template('errors/404.html')
+
+    # Get set_id
+    set_id = await app.state.services.database.fetch_val(
+        'SELECT set_id FROM maps WHERE id=:map_id',
+        {'map_id': map_id}
+    )
+    if not set_id:
+        return await render_template('errors/404.html')
+    else:
+        # Get map info from db
+        m = await app.state.services.database.fetch_one(
+            'SELECT m.set_id, m.status, m.artist, m.title, m.creator, COUNT(f.userid) AS `favs` '
+            'FROM maps m LEFT JOIN favourites f ON f.setid=m.set_id '
+            'WHERE m.set_id=:set_id',
+            {"set_id": set_id}
+        )
+        m = dict(m)
+
+
+    return await render_template('bmap_page.html', m=m, set_id=set_id, map_id=map_id)

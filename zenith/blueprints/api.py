@@ -493,3 +493,30 @@ async def topg_postback(methods=['GET', 'POST']):
         )
         log(f"VOTING POSTBACK: Vote from {p_name} with IP {p_ip}")
         return {"success": True}
+
+@api.route('/mapset_diffs', methods=['GET'])
+async def mapset_diffs():
+    """Get mapset diffs data by id of mapset"""
+    # Get api arg
+    set_id = request.args.get('id', default=None, type=int)
+    if not set_id:
+        return {"success": False, "msg": "You must specify 'id' arg."}
+
+    # Fetch all maps from set by set_id
+    res = await app.state.services.database.fetch_all(
+        "SELECT id, version diffname, total_length, max_combo, plays, mode, bpm, "
+        "cs, ar, od, hp, diff, plays, total_length length, last_update, status "
+        "FROM maps WHERE set_id=:set_id ORDER BY diff ASC",
+        {"set_id": set_id}
+    )
+    if not res:
+        return {"success": False, "msg": "Mapset not found"}
+    # Convert elements of res to dicts
+    res = [dict(row) for row in res]
+
+    # Loop through all maps in results
+    for el in res:
+        el['diff_color'] = getDiffColor(el['diff'])
+
+    # Return data
+    return {'success': True, 'result': res}
