@@ -317,8 +317,7 @@ async def profile(u:str=None, mode:int=None):
     u['latest_activity_dt'] = datetime.datetime.fromtimestamp(float(u['latest_activity']))
     s['playtime'] = datetime.timedelta(seconds=s['playtime'])
 
-    u['userpage_content'] = None
-    """
+
     #Convert markdown to html
     if u['userpage_content'] != None:
         u['userpage_content'] = md(u['userpage_content'])
@@ -329,8 +328,7 @@ async def profile(u:str=None, mode:int=None):
         "FROM customs WHERE userid=:uid",
         {"uid": u['id']}
     )
-    """
-    return await render_template('profile/home.html', user=u, mode=mode, stats=s, cur_page="home", customs=None)#, customs=customs)
+    return await render_template('profile/home.html', user=u, mode=mode, stats=s, cur_page="home", customs=customs)
 
 
 """
