@@ -419,7 +419,7 @@ DIRECT_SET_INFO_FMTSTR = (
 
 DIRECT_MAP_INFO_FMTSTR = (
     "[{DifficultyRating:.2f}⭐] {DiffName} "
-    "{{cs: {CS} / ar: {AR} }}@{Mode}"
+    "{{CS: {CS} / OD: {OD} / AR: {AR} / HP: {HP} }}@{Mode}"
 )
 
 
@@ -434,7 +434,7 @@ async def osuSearchHandler(
     if USING_CHIMU:
         search_url = f"{app.settings.MIRROR_URL}/search"
     else:
-        search_url = f"{app.settings.MIRROR_URL}search"
+        search_url = f"{app.settings.MIRROR_URL}api/search"
 
     params: dict[str, object] = {"amount": 100, "offset": page_num * 100}
 
