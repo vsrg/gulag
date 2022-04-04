@@ -16,3 +16,4 @@ tools/migrate_v420/go.sum
 tools/migrate_v420/scoreMigrator
 main.go
 additional_config.py
+727_tools

@@ -2,7 +2,7 @@
 
 __all__ = ()
 
-from curses.ascii import isdigit
+import bleach
 import datetime
 import json
 import databases
@@ -45,10 +45,10 @@ async def get_records():
         if i == 7:
             continue
         record = await app.state.services.database.fetch_one(
-            f'SELECT s.id, s.pp, s.userid, m.set_id, u.name '
-            f'FROM scores s '
-            f'LEFT JOIN users u ON s.userid = u.id '
-            f'LEFT JOIN maps m ON s.map_md5 = m.md5 '
+            'SELECT s.id, s.pp, s.userid, m.set_id, u.name '
+            'FROM scores s '
+            'LEFT JOIN users u ON s.userid = u.id '
+            'LEFT JOIN maps m ON s.map_md5 = m.md5 '
             f'WHERE s.mode = {i} AND m.status=2 AND u.priv & 1 '
              'AND grade!="f"'
              'ORDER BY pp DESC LIMIT 1;'
@@ -186,7 +186,7 @@ async def search_users():
             'WHERE priv & 1 AND `name` LIKE :q '
             'AND id!=1 '
             'LIMIT 5',
-            {"q": q.join("%%")}
+            {"q": q + "%"}
         )
 
     new_res = []
@@ -208,6 +208,9 @@ async def update_user_discord():
 
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
+
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
 
     user = await app.state.services.database.fetch_val(
         "SELECT 1 FROM customs WHERE userid=:id",
@@ -235,6 +238,8 @@ async def update_user_location():
 
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
 
     user = await app.state.services.database.fetch_val(
         "SELECT 1 FROM customs WHERE userid=:id",
@@ -263,6 +268,9 @@ async def update_user_interests():
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
 
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
+
     user = await app.state.services.database.fetch_val(
         "SELECT 1 FROM customs WHERE userid=:id",
         {"id": session['user_data']['id']}
@@ -290,6 +298,9 @@ async def update_user_website():
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
 
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
+
     user = await app.state.services.database.fetch_val(
         "SELECT 1 FROM customs WHERE userid=:id",
         {"id": session['user_data']['id']}
@@ -315,66 +326,105 @@ async def update_aboutme():
 
     d = await request.get_data()
     d = json.loads(d.decode('utf-8'))
+
+    # Sanitize data from html tags
+    d['data'] = bleach.clean(d['data'], tags=['p', 'br', 'b', 'i', 'u', 's', 'a', 'img', 'center'], strip=True)
     await app.state.services.database.execute(
         "UPDATE users SET userpage_content=:data WHERE id=:uid",
         {"data": d['data'], "uid": session['user_data']['id']}
     )
     return {"success": True}
 
-@api.route('/bmap_search')
+@api.route('/bmap_search', methods=['POST'])
 async def bmap_search():
-    q = request.args.get('q', type=str, default=None)
-    mode = request.args.get('mode', type=int, default=None)
-    status = request.args.get('status', type=int, default=None)
-    offset = request.args.get('o', type=int, default=0)
+    start = datetime.datetime.utcnow()
+    # Get data from request body
+    d = await request.get_data()
+    if d:
+        d = json.loads(d.decode('utf-8'))
+    else:
+        return {'success': False, 'msg': 'No data received.'}
 
-    # Define search query args and string for later usage
-    search_q = []
-    search_q_args = {}
-    search_q_args['offset'] = offset
+    # Create arg list for query
+    arg_list = []
+    args_to_query = {}
 
-    # Check mode, append to query if present
-    if mode:
-        if mode < 0 or mode > 3:
-            return {"success": False, "msg": "Mode must be in range 0-3"}
-        search_q.append("mode=:mode")
-        search_q_args['mode'] = mode
+    # Checks for mode
+    if 'mode' in d:
+        if d['mode'] not in (None, 'null'):
+            arg_list.append("`mode`=':mode'")
+            args_to_query['mode'] = d['mode']
 
-    # Check status, append to query if present
-    if status:
-        if status < 0 or status > 5:
-            return {"success": False, "msg": "Status must be in range 0-5"}
-        search_q.append("status=:status")
-        search_q_args['status'] = status
+    # Checks for status
+    if 'status' in d:
+        status = d['status']
+        if status in (None, 'null'):
+            pass
+        elif status == '0':
+            arg_list.append('(status=2 OR status=3)')
+        elif status == '1':
+            arg_list.append('status=5')
+        elif status == '2':
+            arg_list.append('status=4')
+        elif status == '3':
+            arg_list.append('(status=0 OR status=1')
+    # Checks for search
+    if 'query' in d:
+        query = d['query']
+        if query not in (None, 'null'):
+            arg_list.append('(artist LIKE :query OR creator LIKE :query OR version LIKE :query OR title LIKE :query)')
+            args_to_query['query'] = '%' + query.replace(" ", "%") + '%'
 
-    # Simple Search Engine xD. Dear god i need to figure out how to use match aginst
-    if q:
-        search_q.append("creator LIKE :q OR title LIKE :q OR artist LIKE :q OR version LIKE :q")
-        search_q_args['q'] = q
+    # Checks for frozen
+    if 'frozen' in d:
+        if d['frozen'] not in (None, 'null'):
+            arg_list.append('frozen=1')
 
-    search_q_new = ""
-    i = 1
-    #Parse qury args
-    for el in search_q:
-        if i != len(search_q):
-            search_q_new += el + ' AND '
+    # Checks for offset
+    if 'offset' in d:
+        if d['offset'] in (None, 'null'):
+            args_to_query['offset'] = 0
         else:
-            search_q_new += el
-        i += 1
+            args_to_query['offset'] = d['offset']
+    else:
+        args_to_query['offset'] = 0
 
+    # Convert arg_list to string, add 'AND' between every element
+    arg_list = ' AND '.join(arg_list)
+    if arg_list != '':
+        arg_list = 'WHERE ' + arg_list
+
+    # Fetch maps from database, don't allow duplicates
     res = await app.state.services.database.fetch_all(
-        "SELECT DISTINCT(set_id), status, artist, creator, title "
-        f"FROM maps WHERE {search_q_new} "
+        "SELECT DISTINCT(set_id), artist, creator, title, status "
+        f"FROM maps {arg_list} "
         "ORDER BY last_update DESC LIMIT 30 OFFSET :offset",
-        search_q_args
-    )
-    print(res)
-    print("\n\nSELECT DISTINCT(set_id), status, artist, creator, title ")
-    print(f"FROM maps WHERE {search_q_new} ")
-    print("ORDER BY last_update DESC LIMIT 30 OFFSET :offset")
-    print(search_q_args, "\n\n")
+        args_to_query)
 
-    return {"success": True, "result": res}
+    # Convert elements of res to dicts
+    res = [dict(row) for row in res]
+
+    # Loop through all maps in results
+    # Shitcoding at its finest
+    for el in res:
+        diffs = await app.state.services.database.fetch_all(
+            "SELECT mode, diff FROM maps WHERE set_id=:set_id ORDER BY diff ASC LIMIT 14",
+            {"set_id": el['set_id']})
+        # Convert elements of diffs to dicts
+        diffs = [dict(row) for row in diffs]
+
+        # Get diff color with spectra
+        for diff in diffs:
+            diff['diff_color'] = getDiffColor(diff['diff'])
+
+        # Fetch fav count
+        el['fav_count'] = await app.state.services.database.fetch_val(
+            "SELECT COUNT(userid) FROM favourites WHERE setid=:set_id",
+            {"set_id": el['set_id']})
+        el['diffs'] = diffs
+    print("Exec Time", datetime.datetime.utcnow() - start)
+    return {"success": True, 'result': res}
+
 
 @api.route('/get_pp_history')
 async def get_pp_history():
@@ -407,7 +457,7 @@ async def get_pp_history():
         #Delete unusued vars
         del(now, userid, mode)
         if len(data) < 2:
-            return{"success": False, 'msg': "Not enough data, graph is aviable after 3 days from getting at least 1 pp"}
+            return{"success": False, 'msg': "Not enough data, graph is available after 3 days from getting at least 1 pp"}
 
         # Convert result into dicts inside array and and convert dt obj to timeago
         now = datetime.datetime.utcnow()
@@ -417,4 +467,56 @@ async def get_pp_history():
 
         #Reverse array
         data = data[::-1]
+
     return {"success": True, 'data': data}
+
+# Topg Postback
+@api.route('/postback.php')
+async def topg_postback(methods=['GET', 'POST']):
+    if request.headers['cf-connecting-ip'] != "192.99.101.31": # Topg IP
+        log(f'VOTING POSTBACK: Access denied for {request.headers["cf-connecting-ip"]}')
+        return {"success": False, "msg": "Only TOPG server listing is allowed to use this route."}
+
+    p_name = request.args.get('p_resp', default=None, type=str)
+    p_ip = request.args.get('ip', default=None, type=str)
+
+    p_id = await  app.state.services.database.fetch_val(
+        "SELECT id FROM users WHERE name=:name",
+        {"name": p_name} )
+    if not p_id:
+        log(f"VOTING POSTBACK: Vote from {p_ip}, user does not exist in database")
+        return {"success": False, "msg": "User not found"}
+    else:
+        await app.state.services.database.execute(
+            "INSERT INTO votes (userid, ip) VALUES (:id, :ip)",
+            {"ip": p_ip, "id": p_id}
+        )
+        log(f"VOTING POSTBACK: Vote from {p_name} with IP {p_ip}")
+        return {"success": True}
+
+@api.route('/mapset_diffs', methods=['GET'])
+async def mapset_diffs():
+    """Get mapset diffs data by id of mapset"""
+    # Get api arg
+    set_id = request.args.get('id', default=None, type=int)
+    if not set_id:
+        return {"success": False, "msg": "You must specify 'id' arg."}
+
+    # Fetch all maps from set by set_id
+    res = await app.state.services.database.fetch_all(
+        "SELECT id, version diffname, total_length, max_combo, plays, mode, bpm, "
+        "cs, ar, od, hp, diff, plays, total_length length, last_update, status "
+        "FROM maps WHERE set_id=:set_id ORDER BY diff ASC",
+        {"set_id": set_id}
+    )
+    if not res:
+        return {"success": False, "msg": "Mapset not found"}
+    # Convert elements of res to dicts
+    res = [dict(row) for row in res]
+
+    # Loop through all maps in results
+    for el in res:
+        el['diff_color'] = getDiffColor(el['diff'])
+
+    # Return data
+    return {'success': True, 'result': res}

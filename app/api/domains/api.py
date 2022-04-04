@@ -14,6 +14,7 @@ from fastapi.param_functions import Depends
 from fastapi.param_functions import Query
 from fastapi.responses import ORJSONResponse
 from fastapi.responses import StreamingResponse
+from fastapi.responses import Response
 
 import app.packets
 import app.state
@@ -574,10 +575,10 @@ async def api_get_map_scores(
     # NOTE: userid will eventually become player_id,
     # along with everywhere else in the codebase.
     query = [
-        "SELECT s.map_md5, s.score, s.pp, s.acc, s.max_combo, s.mods, "
+        "SELECT s.id scoreid, s.map_md5, s.score, s.pp, s.acc, s.max_combo, s.mods, "
         "s.n300, s.n100, s.n50, s.nmiss, s.ngeki, s.nkatu, s.grade, s.status, "
         "s.mode, s.play_time, s.time_elapsed, s.userid, s.perfect, "
-        "u.name player_name, "
+        "u.name player_name, u.country, "
         "c.id clan_id, c.name clan_name, c.tag clan_tag "
         "FROM scores s "
         "INNER JOIN users u ON u.id = s.userid "
@@ -754,8 +755,8 @@ async def api_get_replay(
     # can't submit scores so should not be a problem.
 
     # stream data back to the client
-    return StreamingResponse(
-        replay_data,
+    return Response(
+        bytes(replay_data),
         media_type="application/octet-stream",
         headers={
             "Content-Description": "File Transfer",

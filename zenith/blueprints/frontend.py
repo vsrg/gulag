@@ -2,29 +2,32 @@
 
 __all__ = ()
 
+from curses.ascii import isdigit
+import bcrypt
 import datetime
 import hashlib
+import json
 import os
 from re import S
 import time
+
+from cmyui.logging import Ansi, log
 from markdown import markdown as md
 from PIL import Image
+from pathlib import Path
+from quart import (Blueprint, redirect, render_template, request, send_file, session)
 
-import bcrypt
-from sqlalchemy import null
+import app.state
+from app.state import website as zglob
+from app.constants import gamemodes
+from app.constants.mods import Mods
 from app.constants.privileges import Privileges
 from app.objects.player import Player
-from app.state import website as zglob
-import app.state
-from cmyui.logging import Ansi, log
-from pathlib import Path
-from quart import (Blueprint, redirect, render_template, request, send_file,
-                   session)
+
 from zenith import zconfig
 from zenith.objects import regexes, utils
 from zenith.objects.utils import flash, flash_tohome, validate_password
-from app.constants import gamemodes
-from app.constants.mods import Mods
+
 frontend = Blueprint('frontend', __name__)
 
 @frontend.route('/')
@@ -313,7 +316,7 @@ async def profile(u:str=None, mode:int=None):
     u['register_dt'] = datetime.datetime.fromtimestamp(float(u['creation_time']))
     u['latest_activity_dt'] = datetime.datetime.fromtimestamp(float(u['latest_activity']))
     s['playtime'] = datetime.timedelta(seconds=s['playtime'])
-    
+
     u['userpage_content'] = None
     """
     #Convert markdown to html
@@ -587,6 +590,7 @@ async def settings_avatar_post():
 
 @frontend.route('/settings/customization/banner_bg', methods=['POST'])
 async def settings_custom_post():
+
     #* Update privs
     if 'authenticated' in session:
         await utils.updateSession(session)
@@ -671,3 +675,63 @@ async def rules():
 @frontend.route('/discord')
 async def redirect_discord():
     return redirect(zconfig.discord_server)
+
+@frontend.route('/beatmaps')
+async def bmap_search():
+    # Priv update
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+
+    return await render_template('beatmaps.html')
+
+@frontend.route('/s/<set_id>')
+async def beatmap_set_redirect(set_id:int=None):
+    """Redirect to beatmap set page"""
+    # Priv update
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+
+    # Validate set_id
+    if set_id == None:
+        return flash_tohome('error', 'Invalid beatmap set ID!')
+
+    # Fetch map from set
+    map_id = await app.state.services.database.fetch_val(
+        'SELECT id FROM maps WHERE set_id=:set_id',
+        {'set_id': set_id}
+    )
+    if map_id == None:
+        return await render_template('errors/404.html')
+    else:
+        return redirect(f'/b/{map_id}')
+
+@frontend.route('/b/<map_id>')
+async def beatmap_page(map_id:int=None):
+    """Redirect to beatmap page"""
+    # Priv update
+    if 'authenticated' in session:
+        await utils.updateSession(session)
+
+    # Validate map_id
+    if map_id == None:
+        return await render_template('errors/404.html')
+
+    # Get set_id
+    set_id = await app.state.services.database.fetch_val(
+        'SELECT set_id FROM maps WHERE id=:map_id',
+        {'map_id': map_id}
+    )
+    if not set_id:
+        return await render_template('errors/404.html')
+    else:
+        # Get map info from db
+        m = await app.state.services.database.fetch_one(
+            'SELECT m.set_id, m.status, m.artist, m.title, m.creator, COUNT(f.userid) AS `favs` '
+            'FROM maps m LEFT JOIN favourites f ON f.setid=m.set_id '
+            'WHERE m.set_id=:set_id',
+            {"set_id": set_id}
+        )
+        m = dict(m)
+
+
+    return await render_template('bmap_page.html', m=m, set_id=set_id, map_id=map_id)

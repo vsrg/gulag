@@ -40,23 +40,23 @@
                 <!-- Grades -->
                 <div class="grid grid-cols-5 grid-rows-1 mx-auto sm:ml-auto mt-2 sm:mt-0">
                     <div class="col-span-1 row-span-1 flex flex-col items-center mx-2">
-                        <p class="text-3xl font-bold -mt-1 text-hsl-90 text-gray-300">SS</p>
+                        <p class="text-3xl font-bold -mt-1 text-gray-300">SS</p>
                         <p class="text-sm">{{ stats['xh_count'] }}</p>
                     </div>
                     <div class="col-span-1 row-span-1 flex flex-col items-center mx-2">
-                        <p class="text-3xl font-bold -mt-1 text-hsl-90 text-yellow-400">SS</p>
+                        <p class="text-3xl font-bold -mt-1 text-yellow-400">SS</p>
                         <p class="text-sm">{{ stats['x_count'] }}</p>
                     </div>
                     <div class="col-span-1 row-span-1 flex flex-col items-center mx-2">
-                        <p class="text-3xl font-bold -mt-1 text-hsl-90 text-gray-300">S</p>
+                        <p class="text-3xl font-bold -mt-1 text-gray-300">S</p>
                         <p class="text-sm">{{ stats['sh_count'] }}</p>
                     </div>
                     <div class="col-span-1 row-span-1 flex flex-col items-center mx-2">
-                        <p class="text-3xl font-bold -mt-1 text-hsl-90 text-yellow-400">S</p>
+                        <p class="text-3xl font-bold -mt-1 text-yellow-400">S</p>
                         <p class="text-sm">{{ stats['s_count'] }}</p>
                     </div>
                     <div class="col-span-1 row-span-1 flex flex-col items-center mx-2">
-                        <p class="text-3xl font-bold -mt-1 text-hsl-90 text-green-500">A</p>
+                        <p class="text-3xl font-bold -mt-1 text-green-500">A</p>
                         <p class="text-sm">{{ stats['a_count'] }}</p>
                     </div>
                 </div>
@@ -268,7 +268,7 @@
                             <div class="col-span-10 row-span-1 flex flex-col justify-center ml-2">
                                 <p class="font-medium">
                                     <a  class="w-full text-hsl-80 hover:text-hsl-90 transform duration-200"
-                                        href="/b/${el.beatmap.set_id}">
+                                        href="/b/${el.beatmap.id}">
                                         <span class="text-ellipsis overflow-hidden">${el.beatmap.artist} - ${el.beatmap.title} [${el.beatmap.version}]</span>
                                     </a>
                                     <span class="ml-1">${mods2str(el.mods).mod_text}</span>
@@ -333,7 +333,7 @@
                             <div class="col-span-10 row-span-1 flex flex-col justify-center ml-2">
                                 <p class="font-medium">
                                     <a  class="w-full text-hsl-80 hover:text-hsl-90 transform duration-200"
-                                        href="/b/${el.beatmap.set_id}">
+                                        href="/b/${el.beatmap.id}">
                                         <span class="text-ellipsis overflow-hidden">${el.beatmap.artist} - ${el.beatmap.title} [${el.beatmap.version}]</span>
                                     </a>
                                     <span class="ml-1">${mods2str(el.mods).mod_text}</span>
@@ -393,7 +393,7 @@
                     style="background: linear-gradient(hsl(var(--main), 10%, 10%, 0.7),
                     hsl(var(--main), 10%, 10%, 0.7)), url(https://assets.ppy.sh/beatmaps/${el.set_id}/covers/cover.jpg);
                     background-position: center; background-size: cover"
-                    href="/b/${el.set_id}">
+                    href="/b/${el.id}">
                     <div class="grid grid-cols-6 grid-rows-1 gap-1 h-full w-full">
                         <div class="row-span-1 col-span-4 md:col-span-5 h-full flex justify-center ml-2 flex-col">
                             <p class="font-medium truncate">${el.artist} - ${el.title}</p>
@@ -454,7 +454,12 @@
                 theme: {
                     mode: 'dark',
                 },
-
+                markers: {
+                    size: 0,
+                    fillColor: 'hsl(var(--main), 50%, 50%)',
+                    strokeWidth: 0,
+                    hover: { size: 7 }
+                },
                 // Data
                 series: [{
                 name: 'PP',
@@ -480,4 +485,10 @@
         }
     })
 </script>
+<style>
+    .apexcharts-xcrosshairs,
+    .apexcharts-ycrosshairs {
+        display: none;
+    }
+</style>
 {% endblock %}

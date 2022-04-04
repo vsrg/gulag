@@ -17,10 +17,10 @@ diffColors = spectra.scale([ spectra.html(x).to("lab") for x in (['#4290FB', '#4
 diffColorsDomain = diffColors.domain([0.1, 1.25, 2, 2.5, 3.3, 4.2, 4.9, 5.8, 6.7, 7.7, 9])
 def getDiffColor(diff:float):
     """Get diff color from color spectrum"""
-    if diff <= 9:
-        return diffColorsDomain(diff).hexcode
-    elif diff <= 0.1:
+    if diff <= 0.1:
         return "#AAAAAA"
+    elif diff <= 9:
+        return diffColorsDomain(diff).hexcode
     else:
         return "#000000"
 if TYPE_CHECKING:
