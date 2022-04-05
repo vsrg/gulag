@@ -1750,6 +1750,19 @@ async def get_updated_beatmap(
 
     return content
 
+@router.get("/beatmaps/{mapid}")
+async def RedirectMap(mapid: int):
+    return RedirectResponse(
+        url=f"https://{app.settings.DOMAIN}/b/{mapid}",
+        status_code=status.HTTP_301_MOVED_PERMANENTLY,
+    )
+
+@router.get("/u/{uid}")
+async def RedirectMap(uid: int):
+    return RedirectResponse(
+        url=f"https://{app.settings.DOMAIN}/u/{uid}",
+        status_code=status.HTTP_301_MOVED_PERMANENTLY,
+    )
 
 @router.get("/p/doyoureallywanttoaskpeppy")
 async def peppyDMHandler():
