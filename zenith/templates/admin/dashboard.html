@@ -253,17 +253,17 @@
                     return `
                     <li>
                         <div class="list-timeline-icon bg-red">
-                            <i class="fas fa-ban" style="font-size: 18px;"></i>
+                            <i class="fas fa-question" style="font-size: 18px;"></i>
                         </div>
                         <div class="list-timeline-content">
                             <div class="list-timeline-time">${el.timeago}</div>
                             <p class="list-timeline-title">
                                 <a href="/u/${el.from}" class="text-azure">${el.author_name}</a>
-                                <span> restricted </span>
+                                <span> did something to </span>
                                 <a href="/u/${el.to}" class="text-azure">${el.receiver_name}</a>
                             </p>
                             <p>
-                                <span class="text-muted">Reason: </span>${el.msg}
+                                <span class="text-muted">Message: </span>${el.msg}
                             </p>
                         </div>
                     </li>`
