@@ -134,10 +134,18 @@ async def updateSession(session, id:int=None):
     user_info = dict(user_info)
     if (user_info['priv'] & Privileges.MODERATOR or
         user_info['priv'] & Privileges.ADMINISTRATOR or
-        user_info['priv'] & Privileges.DEVELOPER):
+        user_info['priv'] & Privileges.DEVELOPER or
+        user_info['id'] in zconfig.owners):
         is_staff = True
     else:
         is_staff = False
+
+    if (user_info['priv'] & Privileges.ADMINISTRATOR or
+        user_info['priv'] & Privileges.DEVELOPER or
+        user_info['id'] in zconfig.owners):
+        is_admin = True
+    else:
+        is_admin = False
 
     session['authenticated'] = True
     #session['player'] = app.state.sessions.players.from_cache_or_sql(name=user_info['name'])
@@ -148,6 +156,7 @@ async def updateSession(session, id:int=None):
         'priv': int(user_info['priv']),
         'silence_end': user_info['silence_end'],
         'is_staff': is_staff,
+        'is_admin': is_admin
     }
 
 def get_safe_name(name: str) -> str:

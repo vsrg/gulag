@@ -519,3 +519,57 @@ async def mapset_diffs():
 
     # Return data
     return {'success': True, 'result': res}
+
+
+"""                ADMIN ROUTES
+    These routes are only accessible by staff
+"""
+
+@api.route('/admin/get_dashboard_stats', methods=['GET'])
+async def getDashboardStats():
+    """Get dashboard stats"""
+    if 'authenticated' not in session:
+        return {"success": False, "msg": "You are not logged in."}
+    else:
+        await updateSession(session)
+
+    if session['user_data']['is_admin'] == False:
+        return {"success": False, "msg": "You don't have privileges to access this route."}
+
+    r = {}
+    # Fetch data from db
+    r['maps']  = await app.state.services.database.fetch_one(
+        "SELECT COUNT(id) AS `total`,"
+        "COUNT(if(status not in (0,1), 1, NULL)) AS `with_lb` "
+        "FROM maps m"
+    )
+    r['users'] = await app.state.services.database.fetch_one(
+        "SELECT COUNT(id) AS `total`, "
+        "COUNT(if(not priv & 1, 1, NULL)) AS `restricted` "
+        "FROM users "
+    )
+    r['scores'] = await app.state.services.database.fetch_one(
+        "SELECT COUNT(id) AS `total`, "
+        "COUNT(if(grade != 'F', 1, NULL)) AS `not_failed` "
+        "FROM scores"
+    )
+    r['most_played'] = await app.state.services.database.fetch_one(
+        "SELECT set_id, version, creator, artist, title, plays, passes "
+        "FROM maps ORDER BY plays DESC LIMIT 1"
+    )
+    r['recent_actions'] = await app.state.services.database.fetch_all(
+        "SELECT l.from, l.to, l.action, l.msg, l.time, "
+        "atbl.name AS `author_name`, rtbl.name AS `receiver_name` "
+        "FROM logs l LEFT JOIN users atbl ON l.from = atbl.id LEFT JOIN "
+        "users rtbl ON l.to = rtbl.id ORDER BY l.time DESC LIMIT 10"
+    )
+
+    # Convert outputs to dicts inside arrays
+    r['maps'] = dict(r['maps'])
+    r['users'] = dict(r['users'])
+    r['scores'] = dict(r['scores'])
+    r['most_played'] = dict(r['most_played'])
+    r['recent_actions'] = [dict(row) for row in r['recent_actions']]
+
+    # Return data
+    return {'success': True, 'result': r}

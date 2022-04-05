@@ -703,6 +703,11 @@ async def beatmap_set_redirect(set_id:int=None):
     else:
         return redirect(f'/b/{map_id}')
 
+
+@frontend.route('/beatmaps/<map_id>')
+async def redirectMap(map_id='map_id'):
+    return redirect(f'/b/{map_id}')
+
 @frontend.route('/b/<map_id>')
 async def beatmap_page(map_id:int=None):
     """Redirect to beatmap page"""
