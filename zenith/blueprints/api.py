@@ -337,7 +337,6 @@ async def update_aboutme():
 
 @api.route('/bmap_search', methods=['POST'])
 async def bmap_search():
-    start = datetime.datetime.utcnow()
     # Get data from request body
     d = await request.get_data()
     if d:
@@ -422,7 +421,7 @@ async def bmap_search():
             "SELECT COUNT(userid) FROM favourites WHERE setid=:set_id",
             {"set_id": el['set_id']})
         el['diffs'] = diffs
-    print("Exec Time", datetime.datetime.utcnow() - start)
+
     return {"success": True, 'result': res}
 
 

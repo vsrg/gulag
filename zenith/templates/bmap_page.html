@@ -422,6 +422,13 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
     function capitalize(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
+    function mapLength(time) {
+        // convert time in seconds to minutes and seconds
+        let minutes = Math.floor(time / 60)
+        let seconds = time - minutes * 60
+        return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`
+
+    }
     // Swapping map info on hover
     function swapDiffInfo(mapid) {
         // Get map from diffs by id
@@ -434,7 +441,7 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
         document.getElementById('map_info-cs_value').innerHTML = diff.cs
         document.getElementById('map_info-hp_value').innerHTML = diff.hp
         document.getElementById('map_info-od_value').innerHTML = diff.od
-        document.getElementById('map_info-length_value').innerHTML = diff.length
+        document.getElementById('map_info-length_value').innerHTML = mapLength(Number(diff.length))
         document.getElementById('map_info-bpm_value').innerHTML = diff.bpm
         document.getElementById('map_info-stars_value').innerHTML = Math.round(diff.diff * 100) / 100
         document.getElementById('map_info-plays_value').innerHTML = diff.plays
