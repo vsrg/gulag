@@ -570,6 +570,9 @@ async def getDashboardStats():
     r['scores'] = dict(r['scores'])
     r['most_played'] = dict(r['most_played'])
     r['recent_actions'] = [dict(row) for row in r['recent_actions']]
+    for el in r['recent_actions']:
+        el['timeago'] = timeago.format(el['time'], datetime.datetime.utcnow())
+
 
     # Return data
     return {'success': True, 'result': r}

@@ -128,56 +128,7 @@
                 <h3 class="card-title">Recent Actions</h3>
             </div>
             <div class="card-body">
-                <ul class="list list-timeline">
-                    <li>
-                        <div class="list-timeline-icon bg-red">
-                            <i class="fas fa-ban" style="font-size: 18px;"></i>
-                        </div>
-                        <div class="list-timeline-content">
-                            <div class="list-timeline-time">10 hrs ago</div>
-                            <p class="list-timeline-title">
-                                <a href="/u/4" class="text-azure">def750</a>
-                                <span> restricted </span>
-                                <a href="/u/16" class="text-azure">Utofumo</a>
-                            </p>
-                            <p>
-                                <span class="text-muted">Reason: </span>Cheating
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="list-timeline-icon bg-blue">
-                            <i class="fas fa-sticky-note" style="font-size: 18px;"></i>
-                        </div>
-                        <div class="list-timeline-content">
-                            <div class="list-timeline-time">12 hrs ago</div>
-                            <p class="list-timeline-title">
-                                <a href="/u/4" class="text-azure">def750</a>
-                                <span> added note to </span>
-                                <a href="/u/16" class="text-azure">SomeGuy123</a>
-                            </p>
-                            <p>
-                                <span class="text-muted">Note: </span>Liveplay Verified
-                            </p>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="list-timeline-icon bg-yellow">
-                            <i class="fas fa-comment-slash" style="font-size: 18px;"></i>
-                        </div>
-                        <div class="list-timeline-content">
-                            <div class="list-timeline-time">1 day ago</div>
-                            <p class="list-timeline-title">
-                                <a href="/u/26" class="text-azure">mizazil</a>
-                                <span> silenced </span>
-                                <a href="/u/16" class="text-azure">Soda</a>
-                            </p>
-                            <p>
-                                <span class="text-muted">Reason: </span>Spamming
-                            </p>
-                        </div>
-                    </li>
-                </ul>
+                <ul class="list list-timeline" id="timeline"></ul>
             </div>
         </div>
     </div>
@@ -204,6 +155,121 @@
 {% block bottom %}
 <script>
     d = {}
+    function timeago() {
+        // Calculate time ago from date, determine plural for time
+
+
+    }
+    function checkAction(el) {
+        switch(el.action) {
+            case 'restrict':
+                return `
+                <li>
+                    <div class="list-timeline-icon bg-red">
+                        <i class="fas fa-ban" style="font-size: 18px;"></i>
+                    </div>
+                    <div class="list-timeline-content">
+                        <div class="list-timeline-time">${el.timeago}</div>
+                        <p class="list-timeline-title">
+                            <a href="/u/${el.from}" class="text-azure">${el.author_name}</a>
+                            <span> restricted </span>
+                            <a href="/u/${el.to}" class="text-azure">${el.receiver_name}</a>
+                        </p>
+                        <p>
+                            <span class="text-muted">Reason: </span>${el.msg}
+                        </p>
+                    </div>
+                </li>`
+                case 'unrestrict':
+                    return `
+                    <li>
+                        <div class="list-timeline-icon bg-green">
+                            <i class="fas fa-ban" style="font-size: 18px;"></i>
+                        </div>
+                        <div class="list-timeline-content">
+                            <div class="list-timeline-time">${el.timeago}</div>
+                            <p class="list-timeline-title">
+                                <a href="/u/${el.from}" class="text-azure">${el.author_name}</a>
+                                <span> unrestricted </span>
+                                <a href="/u/${el.to}" class="text-azure">${el.receiver_name}</a>
+                            </p>
+                            <p>
+                                <span class="text-muted">Reason: </span>${el.msg}
+                            </p>
+                        </div>
+                    </li>`
+                case 'silence':
+                    return `
+                    <li>
+                        <div class="list-timeline-icon bg-yellow">
+                            <i class="fas fa-comment-slash" style="font-size: 18px;"></i>
+                        </div>
+                        <div class="list-timeline-content">
+                            <div class="list-timeline-time">${el.timeago}</div>
+                            <p class="list-timeline-title">
+                                <a href="/u/${el.from}" class="text-azure">${el.author_name}</a>
+                                <span> silenced </span>
+                                <a href="/u/${el.to}" class="text-azure">${el.receiver_name}</a>
+                            </p>
+                            <p>
+                                <span class="text-muted">Reason and time: </span>${el.msg}
+                            </p>
+                        </div>
+                    </li>`
+                case 'unsilence':
+                    return `
+                    <li>
+                        <div class="list-timeline-icon bg-green">
+                            <i class="fas fa-comment-slash" style="font-size: 18px;"></i>
+                        </div>
+                        <div class="list-timeline-content">
+                            <div class="list-timeline-time">${el.timeago}</div>
+                            <p class="list-timeline-title">
+                                <a href="/u/${el.from}" class="text-azure">${el.author_name}</a>
+                                <span> unsilenced </span>
+                                <a href="/u/${el.to}" class="text-azure">${el.receiver_name}</a>
+                            </p>
+                        </div>
+                    </li>`
+                case 'note':
+                    return `
+                    <li>
+                        <div class="list-timeline-icon bg-blue">
+                            <i class="fas fa-sticky-note" style="font-size: 18px;"></i>
+                        </div>
+                        <div class="list-timeline-content">
+                            <div class="list-timeline-time">${el.timeago}</div>
+                            <p class="list-timeline-title">
+                                <a href="/u/${el.from}" class="text-azure">${el.author_name}</a>
+                                <span> added note to </span>
+                                <a href="/u/${el.to}" class="text-azure">${el.receiver_name}</a>
+                            </p>
+                            <p>
+                                <span class="text-muted">Note Content: </span>${el.msg}
+                            </p>
+                        </div>
+                    </li>`
+                default:
+                    return `
+                    <li>
+                        <div class="list-timeline-icon bg-red">
+                            <i class="fas fa-ban" style="font-size: 18px;"></i>
+                        </div>
+                        <div class="list-timeline-content">
+                            <div class="list-timeline-time">${el.timeago}</div>
+                            <p class="list-timeline-title">
+                                <a href="/u/${el.from}" class="text-azure">${el.author_name}</a>
+                                <span> restricted </span>
+                                <a href="/u/${el.to}" class="text-azure">${el.receiver_name}</a>
+                            </p>
+                            <p>
+                                <span class="text-muted">Reason: </span>${el.msg}
+                            </p>
+                        </div>
+                    </li>`
+        }
+
+    }
     // Add commas to number
     function addCommas(x) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -222,7 +288,7 @@
             <br>
             <span>With ${d.most_played.plays} plays and ${d.most_played.passes} passes</span>
         `
-        document.getElementById('data-most_played_box').href = `/beatmaps/${d.most_played.set_id}`
+        document.getElementById('data-most_played_box').href = `beatmaps/${d.most_played.set_id}`
         document.getElementById('data-most_played_box').style = `
             background-image: url(https://assets.ppy.sh/beatmaps/${d.most_played.set_id}/covers/fullsize.jpg);
             background-position: center`
@@ -233,10 +299,17 @@
         // Maps
         document.getElementById('data-maps_total').innerHTML = addCommas(d.maps.total) + ' Maps in the database'
         document.getElementById('data-maps_ranked').innerHTML = addCommas(d.maps.with_lb) + ' of them have a leaderboard'
-
+ 
         // Scores
         document.getElementById('data-scores_total').innerHTML = addCommas(d.scores.total) + ' Total scores'
         document.getElementById('data-scores_unfailed').innerHTML = addCommas(d.scores.not_failed) + ' of them are not failed'
+        
+
+        // loop thru d.recent_actions
+        // add to ul
+        for (el of d.recent_actions) {
+            document.getElementById('timeline').innerHTML += checkAction(el)
+        }
     })
 </script>
 <script>
