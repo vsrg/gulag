@@ -578,3 +578,28 @@ async def getDashboardStats():
 
     # Return data
     return {'success': True, 'result': r}
+
+@api.route('/admin/user_graph', methods=['GET'])
+async def userGraph():
+    # make sure user is logged in
+    if 'authenticated' not in session:
+        return {"success": False, "msg": "You are not logged in."}
+    else:
+        await updateSession(session)
+    # Priv check
+    if session['user_data']['is_admin'] == False:
+        return {"success": False, "msg": "You don't have privileges to access this route."}
+
+    # Select usercount from users for last 90 days
+    users = []
+    now = datetime.datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    for d in range(90):
+        date = now - datetime.timedelta(days=d)
+        t = int(datetime.datetime.timestamp(date))
+        users.append([await app.state.services.database.fetch_val(
+            "SELECT COUNT(id) AS `total`"
+            "FROM users WHERE creation_time < :days",
+            {"days": t}), date.strftime("%Y-%m-%d")])
+    users.reverse()
+    # Return data
+    return {'success': True, 'result': users}
