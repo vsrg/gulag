@@ -304,11 +304,16 @@
             document.getElementById('timeline').innerHTML += checkAction(el)
         }
     })
-
-    axios.get('https://api.{{ domain() }}/get_player_count')
-    .then((r) => {
-        document.getElementById('data-users_online').innerHTML = r.data.counts.online
-    })
+    function updateOnlines() {
+        axios.get('https://api.{{ domain() }}/get_player_count')
+        .then((r) => {
+            document.getElementById('data-users_online').innerHTML = r.data.counts.online
+        })
+    }
+    // Execute updateOnlines() every 5 seconds
+    updateOnlines()
+    setInterval(updateOnlines, 5000)
+    
 </script>
 <!-- Registered graph-->
 <script>

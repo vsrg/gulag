@@ -46,3 +46,14 @@ async def dashboard():
 
     return await render_template('admin/dashboard.html')
 
+@admin.route('/users')
+async def users():
+    if 'authenticated' not in session:
+        return redirect('/login')
+    else:
+        await utils.updateSession(session)
+
+    if session['user_data']['is_admin'] == False:
+        return await flash_tohome('error', 'You do not have permissions to enter this page.')
+
+    return await render_template('admin/users.html')

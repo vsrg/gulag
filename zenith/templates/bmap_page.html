@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <script>
+    
         //If someone is reading this code, please don't do it to yourself and use timeago lib
         //also, let me know if you manage to use it because im too dumb and .format
         //isn't working xD
@@ -227,17 +228,49 @@
         </div>
     </div>
     <div class="flex flex-col bg-hsl-10 rounded-b-lg mt-12 rounded-t-lg">
-        <div class="bg-zinc-700 bg-opacity-50 w-full h-9 text-sm rounded-t-lg">
-            <div class="flex flex-row items-end justify-center h-full w-8/12 mx-auto">
+        <div class="bg-zinc-700 bg-opacity-50 w-full text-sm rounded-t-lg">
+            <div class="flex flex-row flex-wrap lg:flex-nowrap items-end justify-center h-full w-8/12 mx-auto">
                 <button class="px-3 pb-1 pt-2 whitespace-nowrap transition duration-300
-                    bg-hsl-15 border-b-3 border-hsl-60 -mb-3px rounded-tl-lg">
-                    Global Ranking
+                    hover:bg-hsl-15 hover:border-b-3 border-hsl-60 hover:-mb-3px lg:rounded-tl-lg"
+                    onclick="get_lb(map_id, 0)" id="mode-button-0">
+                    osu!Std
                 </button>
                 <button class="px-3 pb-1 pt-2 whitespace-nowrap transition duration-300
-                    hover:bg-hsl-15 hover:border-b-3 border-hsl-60 hover:-mb-3px rounded-tr-lg
-                    disabled opacity-50" id="country-ranking-btn">
-                    Country Ranking
+                    hover:bg-hsl-15 hover:border-b-3 border-hsl-60 hover:-mb-3px"
+                    onclick="get_lb(map_id, 1)" id="mode-button-1">
+                    osu!Taiko
                 </button>
+                <button class="px-3 pb-1 pt-2 whitespace-nowrap transition duration-300
+                    hover:bg-hsl-15 hover:border-b-3 border-hsl-60 hover:-mb-3px"
+                    onclick="get_lb(map_id, 2)" id="mode-button-2">
+                    osu!Catch
+                </button>
+                <button class="px-3 pb-1 pt-2 whitespace-nowrap transition duration-300
+                    hover:bg-hsl-15 hover:border-b-3 border-hsl-60 hover:-mb-3px"
+                    onclick="get_lb(map_id, 3)" id="mode-button-3">
+                    osu!Mania
+                </button>
+                <button class="px-3 pb-1 pt-2 whitespace-nowrap transition duration-300
+                    hover:bg-hsl-15 hover:border-b-3 border-hsl-60 hover:-mb-3px"
+                    onclick="get_lb(map_id, 4)" id="mode-button-4">
+                    osu!Std + RX
+                </button>
+                <button class="px-3 pb-1 pt-2 whitespace-nowrap transition duration-300
+                    hover:bg-hsl-15 hover:border-b-3 border-hsl-60 hover:-mb-3px"
+                    onclick="get_lb(map_id, 5)" id="mode-button-5">
+                    osu!Taiko + RX
+                </button>
+                <button class="px-3 pb-1 pt-2 whitespace-nowrap transition duration-300
+                    hover:bg-hsl-15 hover:border-b-3 border-hsl-60 hover:-mb-3px"
+                    onclick="get_lb(map_id, 6)" id="mode-button-6">
+                    osu!Catch + RX
+                </button>
+                <button class="px-3 pb-1 pt-2 whitespace-nowrap transition duration-300
+                    hover:bg-hsl-15 hover:border-b-3 border-hsl-60 hover:-mb-3px lg:rounded-tr-lg"
+                    onclick="get_lb(map_id, 8)" id="mode-button-8">
+                    osu!Std + AP
+                </button>
+
             </div>
         </div>
         <div class="relative px-7 py-4 mx-auto overflow-hidden transition-all w-full">
@@ -295,6 +328,7 @@ input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration { display: none; }
 </style>
 <script>
+    map_id = "{{ m['id'] }}"
     diffs = {}
     function loadMaps(set_id) {
         // Fetch mapset diffs
@@ -321,7 +355,6 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
     function get_lb(mapid, mode) {
         axios.get(`https://api.{{ domain()}}/get_map_scores?id=${mapid}&scope=best&mode=${mode}`)
         .then((r) => {
-            console.log(r.data.scores)
             lb = document.getElementById('leaderboard_body')
             lb.innerHTML = ``
             let scores = r.data.scores
@@ -373,6 +406,21 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
                 </tr>
                 `
             }
+
+            // Delete style from all mode-button-0 to mode-button-8
+            for (let i = 0; i < 9; i++) {
+                // If i == 7 skip iteration
+                if (i == 7) continue;
+                document.getElementById(`mode-button-${i}`).classList.add(
+                    'hover:bg-hsl-15', 'hover:border-b-3', 'hover:-mb-3px')
+                document.getElementById(`mode-button-${i}`).classList.remove(
+                    'bg-hsl-15', 'border-b-2', '-mb-3px')
+            }
+            // Swap style for mode-button-mode
+            document.getElementById(`mode-button-${mode}`).classList.add(
+                'bg-hsl-15', 'border-b-2', '-mb-3px')
+            document.getElementById(`mode-button-${mode}`).classList.remove(
+                'hover:bg-hsl-15', 'hover:border-b-3', 'hover:-mb-3px')
         })
     }
 
@@ -435,6 +483,7 @@ input[type="search"]::-webkit-search-results-decoration { display: none; }
         for (diff of diffs) {
             if (diff['id'] === mapid) { map = diff; break}
         }
+        map_id = mapid
         /*TODO: detect mode and delete stuff from map stats */
         // Swap map info
         document.getElementById('map_info-ar_value').innerHTML = diff.ar

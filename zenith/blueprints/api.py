@@ -599,7 +599,7 @@ async def userGraph():
         users.append([await app.state.services.database.fetch_val(
             "SELECT COUNT(id) AS `total`"
             "FROM users WHERE creation_time < :days",
-            {"days": t}), date.strftime("%Y-%m-%d")])
+            {"days": t})-1, date.strftime("%Y-%m-%d")])
     users.reverse()
     # Return data
     return {'success': True, 'result': users}
