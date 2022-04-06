@@ -548,11 +548,6 @@ async def getDashboardStats():
         "COUNT(if(not priv & 1, 1, NULL)) AS `restricted` "
         "FROM users "
     )
-    r['scores'] = await app.state.services.database.fetch_one(
-        "SELECT COUNT(id) AS `total`, "
-        "COUNT(if(grade != 'F', 1, NULL)) AS `not_failed` "
-        "FROM scores"
-    )
     r['most_played'] = await app.state.services.database.fetch_one(
         "SELECT set_id, version, creator, artist, title, plays, passes "
         "FROM maps ORDER BY plays DESC LIMIT 1"
@@ -570,7 +565,6 @@ async def getDashboardStats():
     # Convert outputs to dicts inside arrays
     r['maps'] = dict(r['maps'])
     r['users'] = dict(r['users'])
-    r['scores'] = dict(r['scores'])
     r['most_played'] = dict(r['most_played'])
     r['recent_actions'] = [dict(row) for row in r['recent_actions']]
     for el in r['recent_actions']:
@@ -578,6 +572,24 @@ async def getDashboardStats():
 
     # Return data
     return {'success': True, 'result': r}
+
+@api.route('/admin/get_scores_data', methods=['GET'])
+async def getScoresData():
+    if 'authenticated' not in session:
+        return {"success": False, "msg": "You are not logged in."}
+    else:
+        await updateSession(session)
+    if session['user_data']['is_admin'] == False:
+        return {"success": False, "msg": "You don't have privileges to access this route."}
+
+    data = await app.state.services.database.fetch_one(
+        "SELECT COUNT(id) AS `total`, "
+        "COUNT(if(grade != 'F', 1, NULL)) AS `not_failed` "
+        "FROM scores"
+    )
+    data = dict(data)
+
+    return {'success': True, 'result': data}
 
 @api.route('/admin/user_graph', methods=['GET'])
 async def userGraph():

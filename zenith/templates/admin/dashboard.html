@@ -293,11 +293,6 @@
         document.getElementById('data-maps_total').innerHTML = addCommas(d.maps.total) + ' Maps in the database'
         document.getElementById('data-maps_ranked').innerHTML = addCommas(d.maps.with_lb) + ' of them have a leaderboard'
 
-        // Scores
-        document.getElementById('data-scores_total').innerHTML = addCommas(d.scores.total) + ' Total scores'
-        document.getElementById('data-scores_unfailed').innerHTML = addCommas(d.scores.not_failed) + ' of them are not failed'
-
-
         // loop thru d.recent_actions
         // add to ul
         for (el of d.recent_actions) {
@@ -310,9 +305,21 @@
             document.getElementById('data-users_online').innerHTML = r.data.counts.online
         })
     }
+    function getScoresCount() {
+        // get score counts
+        axios.get('/wapi/admin/get_scores_data')
+        .then((r) => {
+            // Scores
+            d = r.data.result
+            document.getElementById('data-scores_total').innerHTML = addCommas(d.total) + ' Total scores'
+            document.getElementById('data-scores_unfailed').innerHTML = addCommas(d.not_failed) + ' of them are not failed'
+        })
+    }
     // Execute updateOnlines() every 5 seconds
     updateOnlines()
     setInterval(updateOnlines, 5000)
+    getScoresCount()
+    setInterval(getScoresCount, 5000)
     
 </script>
 <!-- Registered graph-->
