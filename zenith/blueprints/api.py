@@ -563,6 +563,9 @@ async def getDashboardStats():
         "FROM logs l LEFT JOIN users atbl ON l.from = atbl.id LEFT JOIN "
         "users rtbl ON l.to = rtbl.id ORDER BY l.time DESC LIMIT 10"
     )
+    r['recently_restricted'] = await app.state.services.database.fetch_val(
+        "SELECT COUNT(id) FROM logs WHERE action='restrict' AND time>now() - INTERVAL 7 day;"
+    )
 
     # Convert outputs to dicts inside arrays
     r['maps'] = dict(r['maps'])
@@ -572,7 +575,6 @@ async def getDashboardStats():
     r['recent_actions'] = [dict(row) for row in r['recent_actions']]
     for el in r['recent_actions']:
         el['timeago'] = timeago.format(el['time'], datetime.datetime.utcnow())
-
 
     # Return data
     return {'success': True, 'result': r}
