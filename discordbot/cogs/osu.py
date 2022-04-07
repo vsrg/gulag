@@ -36,14 +36,14 @@ class osu(commands.Cog):
         for role in ctx.author.roles:           #getting all roles of member
             if role.id == int(configb.ROLES['restricted']):
                 #? THIS CODE CHECKS FOR ROLE, NOT PERMS
-                return await ctx.send(embed=await embutils.emb_gen("restricted_self"))
+                return await ctx.send(embed=await embutils.emb_gen(embed_name="restricted_self"))
 
 
         #* Get user
         user = await dutils.getUser(ctx, "id, name, country, preferred_mode, creation_time, latest_activity", user)
         #! Return if error occured
         if 'error' in user:
-            return await ctx.send(embed=await embutils.emb_gen(user['error']))
+            return await ctx.send(embed=await embutils.emb_gen(embed_name=user['error']))
 
         #* Reassign user and get player object
         user = user['user']
@@ -52,12 +52,12 @@ class osu(commands.Cog):
         #* Check target user perms
         if Privileges.NORMAL not in player.priv and ctx.channel.id not in [
             configb.channels.gmt, configb.channels.admin]:
-            return await ctx.send(embed=await embutils.emb_gen('permission_view_restrict'))
+            return await ctx.send(embed=await embutils.emb_gen(embed_name='permission_view_restrict'))
 
         #* Get mode and mods
         m = await dutils.getmodemods(user, mode, mods)
         if 'error' in m:
-            return await ctx.send(embed=await embutils.emb_gen(m['error']))
+            return await ctx.send(embed=await embutils.emb_gen(embed_name=m['error']))
         mode = m['mode']
         mods = m['mods']
         del(m)
@@ -77,7 +77,7 @@ class osu(commands.Cog):
         if mods != "vn":
             author_name += f" with {dconst.mods2str[mods].capitalize()}"
 
-        #TODO: Fix it, currently displays weird time format (Ex.: 1 day, 13:17:27)
+        #TODO: Fix it, currently displays weird time format (Ex.: 1 day, 21:37:27)
         playtime = datetime.timedelta(seconds=stats['playtime'])
 
         embed = discord.Embed(
@@ -85,11 +85,11 @@ class osu(commands.Cog):
         )
         embed.set_author(
             name=author_name,
-            icon_url=f"https://{settings.DOMAIN}/static/images/flags/{user['country'].upper()}.png",
-            url=f"https://{settings.DOMAIN}/u/{player.id}"
+            icon_url=f"https://{configb.DOMAIN}/static/images/flags/{user['country'].upper()}.png",
+            url=f"https://{configb.DOMAIN}/u/{player.id}"
         )
         embed.set_thumbnail(
-            url=f"https://a.{settings.DOMAIN}/{player.id}"
+            url=f"https://a.{configb.DOMAIN}/{player.id}"
         )
         embed.add_field(
             name="Stats",
@@ -131,7 +131,7 @@ class osu(commands.Cog):
         #! Return if error occured
         if 'error' in user:
             cmyui.log(f"DISCORD BOT: {ctx.author} tried using /scores but got an error: {user['error']}", Ansi.RED)
-            return await ctx.send(embed = await embutils.emb_gen(user['error']))
+            return await ctx.send(embed = await embutils.emb_gen(embed_name=user['error']))
 
         if not type:
             type = "best"
@@ -201,13 +201,13 @@ class osu(commands.Cog):
         try:
             if limit is not None:
                 if int(limit) > 100 or int(limit) < 1:
-                    return await ctx.send(embed=await embutils.emb_gen("scores_over_limit"))
+                    return await ctx.send(embed=await embutils.emb_gen(embed_name="scores_over_limit"))
                 else:
                     params["limit"] = int(limit)
             else:
                 params["limit"] = 5
         except:
-            return await ctx.send(embed=await embutils.emb_gen("not_integer"))
+            return await ctx.send(embed=await embutils.emb_gen(embed_name="not_integer"))
 
         rows = [
             dict(row)
@@ -242,20 +242,17 @@ class osu(commands.Cog):
         username = user['name']
         score_count = len(rows_real['scores'])
         if not score_count:
-            if self_executed:
-                return await ctx.send(await embutils.emb_gen("no_scores_self"))
-            else:
-                return await ctx.send(
-                    embed = discord.Embed(
-                        title = f"No scores found for {username}",
-                        description = f"{username} ain't got no scores. Tell them to set some and come back when they do.",
-                        color = embutils.colors.red
-                    )
-                )
+            embed = discord.Embed(
+                title = f"No scores found for user: {username}",
+                description = f"Couldn't find any scores for user `{username}`. If you think this is a bug, please contact def750 or grafika dzifors about it.",
+                color = embutils.colors.red
+            )
+
+            return await ctx.send(embed=embed)
 
         if score_count != limit:
             if self_executed:
-                await ctx.send(await embutils.emb_gen("not_enough_scores_self"))
+                await ctx.send(await embutils.emb_gen(embed_name="not_enough_scores_self"))
             else:
                 await ctx.send(
                     embed = discord.Embed(
@@ -265,11 +262,11 @@ class osu(commands.Cog):
                     )
                 )
 
-        
+
         return await ctx.send(
             embed = discord.Embed(
                 title="This Worked",
-                description=f"Your Arguments:\nplayer: {player}\nmode: {mode}\nmods: {params['mods']}\nlimit: {params['limit']}\nlimit check: {score_count}\nplayer info: {player_info}", 
+                description=f"Your Arguments:\nplayer: {player}\nmode: {mode}\nmods: {params['mods']}\nlimit: {params['limit']}\nlimit check: {score_count}\nplayer info: {player_info}",
                 color=ctx.author.color
             )
         )
