@@ -169,7 +169,7 @@ async def _bot_runner() -> None:
         log('[DISCORD BOT] Bot Connection Closed', Ansi.RED)
 
 async def _website() -> None:
-    app = Quart(__name__, 
+    app = Quart(__name__,
                 template_folder='/opt/gulag/zenith/templates/',
                 root_path='/opt/gulag/zenith/',
                 static_folder='/opt/gulag/zenith/static/',
@@ -221,7 +221,9 @@ async def _website() -> None:
     app.register_blueprint(frontend)
     from zenith.blueprints.api import api
     app.register_blueprint(api, url_prefix="/wapi")
-    
+    from zenith.blueprints.admin import admin
+    app.register_blueprint(admin, url_prefix="/admin")
+
     @app.errorhandler(404)
     async def page_not_found(e):
         # NOTE: we set the 404 status explicitly
@@ -232,4 +234,3 @@ async def _website() -> None:
     #app.run(debug=zconf.debug) # blocking call
     if __name__ == "app.bg_loops":
         await serve(app, Config(), shutdown_trigger=lambda: asyncio.Future())
-        
