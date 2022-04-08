@@ -479,19 +479,30 @@ async def topg_postback(methods=['GET', 'POST']):
     p_name = request.args.get('p_resp', default=None, type=str)
     p_ip = request.args.get('ip', default=None, type=str)
 
+    # Search by name
     p_id = await  app.state.services.database.fetch_val(
         "SELECT id FROM users WHERE name=:name",
         {"name": p_name} )
+
+    # Possible invalid name, Try searching by ip from ingame_logins table
     if not p_id:
-        log(f"VOTING POSTBACK: Vote from {p_ip}, user does not exist in database")
-        return {"success": False, "msg": "User not found"}
-    else:
-        await app.state.services.database.execute(
-            "INSERT INTO votes (userid, ip) VALUES (:id, :ip)",
-            {"ip": p_ip, "id": p_id}
-        )
-        log(f"VOTING POSTBACK: Vote from {p_name} with IP {p_ip}")
-        return {"success": True}
+        p_id = await app.state.services.database.fetch_val(
+            "SELECT DISTINCT(userid) FROM ingame_logins WHERE ip=:ip "
+            "ORDER BY datetime desc LIMIT 1",
+            {"ip": p_ip} )
+
+        # Still nothing fount
+        if not p_id:
+            log(f"User not found by both ways (Name: {p_name} and IP: {p_ip})", Ansi.RED)
+            return {"success": False, "msg": "User not found"}
+
+    # User found, insert into votes
+    await app.state.services.database.execute(
+        "INSERT INTO votes (userid, ip) VALUES (:id, :ip)",
+        {"ip": p_ip, "id": p_id}
+    )
+    log(f"VOTING POSTBACK: Vote from {p_name} with IP {p_ip}")
+    return {"success": True}
 
 @api.route('/mapset_diffs', methods=['GET'])
 async def mapset_diffs():
