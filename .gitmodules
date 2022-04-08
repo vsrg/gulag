@@ -1,7 +1,6 @@
 [submodule "oppai_ng"]
 	path = oppai_ng
 	url = https://github.com/tsunyoku/oppai_ng
-
 [submodule "zenith"]
 	path = zenith
 	url = https://github.com/seventwentyseven/zenith
