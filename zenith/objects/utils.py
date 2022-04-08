@@ -207,3 +207,30 @@ async def validate_password(user_id:int, password_text:str):
         # login successful; cache password for next login
         bcrypt_cache[pw_bcrypt] = pw_md5
     return True
+
+def getHighestPriv(value: int) -> str:
+    """Returns the highest privilege level of a user."""
+    if value & 16384:
+        return "Developer"
+    elif value & 8192:
+        return "Admin"
+    elif value & 4096:
+        return "Moderator"
+    elif value & 2048:
+        return "Nominator"
+    elif value & 1024:
+        return "Tournament"
+    elif value & 128:
+        return "Alumni"
+    elif value & 16:
+        return "Supporter+"
+    elif value & 8:
+        return "Supporter"
+    elif value & 4:
+        return "Whitelisted"
+    elif value & 2:
+        return "Normal"
+    elif value & 1:
+        return "Unverified"
+    else:
+        raise ValueError("Invalid privilege value")

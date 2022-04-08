@@ -33,6 +33,11 @@ MODE_CONVERT = {
     8: "osu!Standard+AP",
 }
 
+# I hate you javascript
+class console():
+    log = print
+
+
 @api.route('/')
 async def main():
     return {'success': False, 'msg': 'Please specify route'}
@@ -626,3 +631,55 @@ async def userGraph():
     users.reverse()
     # Return data
     return {'success': True, 'result': users}
+
+@api.route('/admin/get_user_list')
+async def usersList():
+    # Authorize user with quart
+    if 'authenticated' not in session:
+        return {"success": False, "msg": "You are not logged in."}
+    else:
+        await updateSession(session)
+
+    if session['user_data']['is_admin'] == False:
+        return {"success": False, "msg": "You don't have privileges to access this route."}
+
+    # User passed verification, allow to go further
+    q = request.args.get('q', default=None, type=str)
+    o = request.args.get('o', default=None, type=int)
+    params = {}
+
+    if q:
+        q += "%"
+        query = "WHERE name LIKE :q "
+        params['q'] = q
+    else:
+        query = ""
+
+    if o:
+        params['o'] = o
+    else:
+        params['o'] = 0
+
+    res = await app.state.services.database.fetch_all(
+        "SELECT id, name, priv, country, creation_time, latest_activity "
+        f"FROM users {query} ORDER BY id ASC LIMIT 50 OFFSET :o",
+        params
+    )
+
+    # Convert elements of res to dicts
+    res = [dict(row) for row in res]
+    for el in res:
+        #convert timestamps to readable dates
+        el['creation_time'] = datetime.datetime.fromtimestamp(el['creation_time']).strftime("%Y-%m-%d %H:%M")
+        el['latest_activity'] = datetime.datetime.fromtimestamp(el['latest_activity']).strftime("%Y-%m-%d %H:%M")
+
+        # Get user's highest priv
+        if not el['priv'] & 1:
+            el['priv'] = "Restricted"
+        elif el['id'] in zconfig.owners:
+            el['priv'] = "Owner"
+        else:
+           el['priv'] = getHighestPriv(el['priv'])
+
+
+    return {'success': True, 'result': res}
