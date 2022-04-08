@@ -29,6 +29,8 @@ import zenith.zconfig as zconf
 from app.state import website as zglob
 from hypercorn.asyncio import serve
 from hypercorn.config import Config
+
+
 __all__ = ("initialize_housekeeping_tasks",)
 
 OSU_CLIENT_MIN_PING_INTERVAL = 300000 // 1000  # defined by osu!
