@@ -24,6 +24,7 @@ import aiohttp
 import orjson
 from quart import Quart
 from quart import render_template
+from quart import send_from_directory
 from cmyui.logging import Ansi, log
 import zenith.zconfig as zconf
 from app.state import website as zglob
@@ -230,7 +231,10 @@ async def _website() -> None:
         # NOTE: we set the 404 status explicitly
         return (await render_template(f'errors/404.html'), 404)
 
-
+    # Custom static data
+    @app.route('/cdn/tw-elements/<path:filename>')
+    async def custom_static(filename):
+        return await send_from_directory('/opt/gulag/zenith/static/js/twelements/', filename)
 
     #app.run(debug=zconf.debug) # blocking call
     if __name__ == "app.bg_loops":

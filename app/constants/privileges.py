@@ -23,8 +23,8 @@ class Privileges(IntFlag):
     WHITELISTED = 1 << 2 # trusted player.                      # 4
 
     # donation tiers, receives some extra benefits.
-    SUPPORTER = 1 << 4                                          # 8
-    PREMIUM = 1 << 5                                            # 16
+    SUPPORTER = 1 << 4                                          # 16
+    PREMIUM = 1 << 5                                            # 32
 
     # notable users, receives some extra benefits.
     ALUMNI = 1 << 7                                             # 128
