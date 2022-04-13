@@ -1050,6 +1050,37 @@ async def shutdown(ctx: Context) -> Optional[str]:
 
 _fake_users: list[Player] = []
 
+@command(Privileges.DEVELOPER)
+async def redisrecalc(ctx):
+    await app.state.services.redis.delete("*")
+    for i in [0,1,2,3,4,5,6,8]:
+        res = await app.state.services.database.fetch_all(
+            "SELECT u.id, u.priv, u.country, s.pp "
+            "FROM users u "
+            "LEFT JOIN stats s ON u.id=s.id "
+            "WHERE s.mode=:mode ",
+            {"mode": i}
+        )
+        for el in res:
+            el = dict(el)
+            if Privileges.NORMAL not in Privileges(el['priv']):
+                pass
+            else:
+                try:
+                    # global rank
+                    await app.state.services.redis.zadd(
+                        f"bancho:leaderboard:{i}",
+                        {el['id']:el['pp']},
+                    )
+
+                    # country rank
+                    await app.state.services.redis.zadd(
+                        f"bancho:leaderboard:{i}:{el['country']}",
+                        {el['id']: el['pp']},
+                    )
+                except Exception:
+                    print(f"Error occured on {el['id']} in mode {i}")
+    return "Done"
 
 @command(Privileges.DEVELOPER, aliases=["fu"])
 async def fakeusers(ctx: Context) -> Optional[str]:
