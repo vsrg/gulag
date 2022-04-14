@@ -3,4 +3,4 @@
 	url = https://github.com/tsunyoku/oppai_ng
 [submodule "zenith"]
 	path = zenith
-	url = ./zenith
+	url = https://github.com/seventwentyseven/zenith
